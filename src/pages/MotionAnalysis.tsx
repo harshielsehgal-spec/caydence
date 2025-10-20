@@ -196,16 +196,23 @@ const MotionAnalysis = () => {
             <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 variant="outline"
+                onClick={() => navigate("/compare-view")}
+                className="flex-1 h-12 font-poppins"
+              >
+                Compare with Coach
+              </Button>
+              <Button
+                variant="outline"
                 onClick={() => navigate("/ai-insights")}
                 className="flex-1 h-12 font-poppins"
               >
-                View Technology Details
+                View Technology
               </Button>
               <Button
                 onClick={() => navigate("/dashboard")}
                 className="flex-1 h-12 font-poppins font-semibold"
               >
-                Continue to Dashboard
+                Dashboard
               </Button>
             </div>
           </div>

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Award, Clock, Calendar, BarChart3, User } from "lucide-react";
+import { TrendingUp, Award, Clock, Calendar, BarChart3, User, Camera, Video } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -46,6 +46,33 @@ const Dashboard = () => {
             Profile
           </Button>
         </div>
+
+        {/* AI Analysis CTA */}
+        <Card className="mb-6 shadow-card-hover bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center shadow-card">
+                  <Camera className="h-8 w-8 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold font-poppins mb-1">AI Motion Analysis</h3>
+                  <p className="text-muted-foreground font-montserrat">
+                    Get instant feedback on your form and technique
+                  </p>
+                </div>
+              </div>
+              <Button 
+                onClick={() => navigate("/video-upload")}
+                size="lg"
+                className="font-poppins font-semibold whitespace-nowrap"
+              >
+                <Video className="mr-2 h-4 w-4" />
+                Analyze Video
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Stats Overview */}
         <div className="grid md:grid-cols-4 gap-4 mb-8">
@@ -180,7 +207,7 @@ const Dashboard = () => {
         {/* Quick Actions */}
         <div className="grid md:grid-cols-3 gap-4">
           <Button
-            onClick={() => navigate("/motion-analysis")}
+            onClick={() => navigate("/video-upload")}
             className="h-20 text-lg font-poppins"
           >
             New Analysis
