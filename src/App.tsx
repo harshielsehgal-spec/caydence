@@ -16,6 +16,7 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import VideoUpload from "./pages/VideoUpload";
 import CompareView from "./pages/CompareView";
+import SessionBooking from "./pages/SessionBooking";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/video-upload" element={<VideoUpload />} />
           <Route path="/motion-analysis" element={<MotionAnalysis />} />
           <Route path="/compare-view" element={<CompareView />} />
+          <Route path="/session-booking" element={<SessionBooking />} />
           <Route path="/ai-insights" element={<AIInsights />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />

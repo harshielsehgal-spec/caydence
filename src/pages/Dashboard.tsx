@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,17 +26,20 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen px-4 py-8 bg-background">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div className="animate-slide-up">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2 font-poppins">
-              Your Progress
-            </h1>
-            <p className="text-muted-foreground font-montserrat">
-              Track your training journey
-            </p>
+    <div className="min-h-screen bg-background">
+      {/* Top Bar */}
+      <div className="sticky top-0 z-20 bg-background/90 backdrop-blur-md border-b border-border">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/coach-swipe")}
+              className="hover:bg-accent"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-xl font-bold font-poppins">My Dashboard</h1>
           </div>
           <Button
             variant="outline"
@@ -45,6 +49,18 @@ const Dashboard = () => {
             <User className="mr-2 h-4 w-4" />
             Profile
           </Button>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8 animate-slide-up">
+          <h2 className="text-3xl md:text-4xl font-bold mb-2 font-poppins">
+            Your Progress
+          </h2>
+          <p className="text-muted-foreground font-montserrat">
+            Track your training journey
+          </p>
         </div>
 
         {/* AI Analysis CTA */}
@@ -214,7 +230,7 @@ const Dashboard = () => {
           </Button>
           <Button
             variant="outline"
-            onClick={() => navigate("/marketplace")}
+            onClick={() => navigate("/coach-swipe")}
             className="h-20 text-lg font-poppins"
           >
             Find Coaches

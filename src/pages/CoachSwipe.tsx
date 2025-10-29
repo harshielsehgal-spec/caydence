@@ -86,6 +86,8 @@ const CoachSwipe = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [shortlistedIds, setShortlistedIds] = useState<number[]>([]);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showActionModal, setShowActionModal] = useState(false);
+  const [selectedCoachForAction, setSelectedCoachForAction] = useState<typeof currentCoach | null>(null);
 
   const currentCoach = coaches[currentIndex];
 
@@ -100,12 +102,8 @@ const CoachSwipe = () => {
   const handleSwipeRight = () => {
     if (currentCoach) {
       setShortlistedIds([...shortlistedIds, currentCoach.id]);
-      toast.success(`${currentCoach.name} added to shortlist!`);
-    }
-    if (currentIndex < coaches.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      toast.info("No more coaches to show!");
+      setSelectedCoachForAction(currentCoach);
+      setShowActionModal(true);
     }
   };
 
@@ -113,8 +111,21 @@ const CoachSwipe = () => {
     setShowProfileModal(true);
   };
 
-  const handleBookEvaluation = () => {
-    navigate("/video-upload", { state: { coach: currentCoach } });
+  const handleBookSession = () => {
+    navigate("/session-booking", { state: { coach: selectedCoachForAction || currentCoach } });
+  };
+
+  const handleViewDashboard = () => {
+    navigate("/dashboard");
+  };
+
+  const handleContinueBrowsing = () => {
+    setShowActionModal(false);
+    if (currentIndex < coaches.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    } else {
+      toast.info("No more coaches to show!");
+    }
   };
 
   const getModeIcon = () => {
@@ -322,12 +333,68 @@ const CoachSwipe = () => {
                 <span className="text-sm font-normal text-muted-foreground">/session</span>
               </div>
               <Button 
-                onClick={handleBookEvaluation}
+                onClick={() => {
+                  setSelectedCoachForAction(currentCoach);
+                  setShowProfileModal(false);
+                  setShowActionModal(true);
+                }}
                 className="bg-crimson hover:bg-crimson/90"
               >
-                Book AI Evaluation
+                Book Session
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Action Modal */}
+      <Dialog open={showActionModal} onOpenChange={setShowActionModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-poppins text-center">
+              What's Next?
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {selectedCoachForAction && (
+              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
+                <img
+                  src={selectedCoachForAction.image}
+                  alt={selectedCoachForAction.name}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div>
+                  <p className="font-semibold font-poppins">{selectedCoachForAction.name}</p>
+                  <p className="text-sm text-muted-foreground font-montserrat">
+                    Added to shortlist ✓
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <Button
+              onClick={handleBookSession}
+              className="w-full h-14 bg-crimson hover:bg-crimson/90 text-base font-semibold"
+            >
+              🏋️ Start Training / Book Session
+            </Button>
+
+            <Button
+              onClick={handleViewDashboard}
+              variant="outline"
+              className="w-full h-14 text-base font-semibold"
+            >
+              📊 View My Dashboard
+            </Button>
+
+            <Button
+              onClick={handleContinueBrowsing}
+              variant="ghost"
+              className="w-full text-sm text-muted-foreground hover:text-foreground"
+            >
+              Continue browsing coaches →
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
