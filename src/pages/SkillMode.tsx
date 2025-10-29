@@ -16,7 +16,7 @@ const SkillMode = () => {
   const [budget, setBudget] = useState([500]);
 
   const handleNext = () => {
-    navigate("/marketplace", { 
+    navigate("/coach-swipe", { 
       state: { sport, skill, mode, budget: budget[0] } 
     });
   };

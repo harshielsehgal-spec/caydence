@@ -7,6 +7,7 @@ import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import SportSelection from "./pages/SportSelection";
 import SkillMode from "./pages/SkillMode";
+import CoachSwipe from "./pages/CoachSwipe";
 import Marketplace from "./pages/Marketplace";
 import CoachProfile from "./pages/CoachProfile";
 import MotionAnalysis from "./pages/MotionAnalysis";
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/sport-selection" element={<SportSelection />} />
           <Route path="/skill-mode" element={<SkillMode />} />
+          <Route path="/coach-swipe" element={<CoachSwipe />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/coach/:id" element={<CoachProfile />} />
           <Route path="/video-upload" element={<VideoUpload />} />
