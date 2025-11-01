@@ -1,12 +1,51 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowLeft, Settings, Trophy, Calendar, MapPin } from "lucide-react";
+import { SubscriptionModal } from "@/components/SubscriptionModal";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [userPlan, setUserPlan] = useState<"free" | "basic" | "pro" | "elite">("free");
+
+  const handlePlanUpdate = (plan: "basic" | "pro" | "elite", billing: "monthly" | "yearly") => {
+    setUserPlan(plan);
+  };
+
+  const getPlanBadge = () => {
+    if (userPlan === "free") return null;
+    const planNames = {
+      basic: "Basic Member",
+      pro: "Pro Member",
+      elite: "Elite Member"
+    };
+    return (
+      <Badge className="bg-primary/10 text-primary border-primary/20" style={{ backgroundColor: 'rgba(255, 107, 0, 0.2)', color: '#FF6B00', borderColor: 'rgba(255, 107, 0, 0.3)' }}>
+        {planNames[userPlan]}
+      </Badge>
+    );
+  };
+
+  const getUpgradeCardContent = () => {
+    if (userPlan === "free") {
+      return {
+        title: "Upgrade to Pro",
+        description: "Get unlimited AI analyses, priority coach booking, and exclusive training content",
+        buttonText: "Upgrade Now"
+      };
+    }
+    return {
+      title: "Manage Plan",
+      description: "View your current subscription and explore other plan options",
+      buttonText: "Change Plan"
+    };
+  };
+
+  const upgradeCardContent = getUpgradeCardContent();
 
   const userStats = [
     { label: "Member Since", value: "Jan 2024", icon: Calendar },
@@ -51,9 +90,12 @@ const Profile = () => {
 
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary">Athlete</Badge>
-                  <Badge className="bg-primary/10 text-primary border-primary/20">
-                    Pro Member
-                  </Badge>
+                  {getPlanBadge()}
+                  {userPlan === "free" && (
+                    <Badge variant="outline" style={{ color: '#BFBFBF', borderColor: 'rgba(191, 191, 191, 0.3)' }}>
+                      Free
+                    </Badge>
+                  )}
                 </div>
               </div>
             </div>
@@ -106,16 +148,26 @@ const Profile = () => {
         <Card className="shadow-card-hover bg-gradient-to-br from-primary/5 to-background border-primary/20">
           <CardContent className="p-6">
             <h3 className="text-xl font-semibold font-poppins mb-3">
-              Upgrade to Pro
+              {upgradeCardContent.title}
             </h3>
             <p className="text-muted-foreground font-montserrat mb-4">
-              Get unlimited AI analyses, priority coach booking, and exclusive training content
+              {upgradeCardContent.description}
             </p>
-            <Button className="w-full sm:w-auto font-poppins font-semibold">
-              Upgrade Now
+            <Button 
+              onClick={() => setModalOpen(true)}
+              className="w-full sm:w-auto font-poppins font-semibold"
+            >
+              {upgradeCardContent.buttonText}
             </Button>
           </CardContent>
         </Card>
+
+        <SubscriptionModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          currentPlan={userPlan}
+          onPlanUpdate={handlePlanUpdate}
+        />
 
         {/* Footer Links */}
         <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground font-montserrat">
