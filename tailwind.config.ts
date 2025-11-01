@@ -48,8 +48,9 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         charcoal: "hsl(var(--charcoal))",
-        crimson: "hsl(var(--crimson))",
-        lightGray: "hsl(var(--light-gray))",
+        vibrantOrange: "hsl(var(--vibrant-orange))",
+        orangeGlow: "hsl(var(--orange-glow))",
+        coolGray: "hsl(var(--cool-gray))",
       },
       fontFamily: {
         poppins: ['Poppins', 'sans-serif'],
