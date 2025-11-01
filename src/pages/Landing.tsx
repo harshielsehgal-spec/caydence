@@ -11,39 +11,54 @@ const Landing = () => {
       <section 
         className="relative flex-1 flex items-center justify-center px-6 py-20 overflow-hidden"
         style={{
-          backgroundImage: `linear-gradient(135deg, rgba(255, 107, 0, 0.92) 0%, rgba(198, 40, 0, 0.95) 100%), url(${heroImage})`,
+          backgroundImage: `linear-gradient(135deg, rgba(255, 107, 0, 0.88) 0%, rgba(13, 13, 13, 0.92) 50%, rgba(198, 40, 0, 0.90) 100%), url(${heroImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       >
+        {/* Black Frame Border */}
+        <div className="absolute inset-8 md:inset-16 border-4 border-charcoal/60 rounded-3xl pointer-events-none"></div>
+        
+        {/* Corner Accents */}
+        <div className="absolute top-12 left-12 w-20 h-20 border-l-4 border-t-4 border-vibrantOrange rounded-tl-2xl"></div>
+        <div className="absolute bottom-12 right-12 w-20 h-20 border-r-4 border-b-4 border-vibrantOrange rounded-br-2xl"></div>
+        
         <div className="max-w-4xl mx-auto text-center relative z-10 animate-slide-up">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 font-heading tracking-wide" style={{ color: '#FFFFFF' }}>
-            Train Smarter.<br />Move Better.<br />Anywhere.
-          </h1>
-          
-          <p className="text-xl md:text-2xl mb-12 font-body" style={{ color: '#DADADA' }}>
-            AI + Human Coaching Combined for Real Performance
-          </p>
+          {/* Content Container with Black Background */}
+          <div className="bg-charcoal/70 backdrop-blur-sm border-2 border-vibrantOrange/30 rounded-2xl p-8 md:p-12 shadow-orange-glow">
+            <h1 
+              className="text-5xl md:text-7xl font-bold mb-6 font-heading tracking-wide" 
+              style={{ 
+                color: '#FFFFFF',
+                textShadow: '3px 3px 6px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 107, 0, 0.3)'
+              }}
+            >
+              Train Smarter.<br />Move Better.<br />Anywhere.
+            </h1>
+            
+            <div className="h-1 w-32 mx-auto mb-6 bg-gradient-orange rounded-full"></div>
+            
+            <p className="text-xl md:text-2xl mb-12 font-body font-semibold" style={{ color: '#0D0D0D', textShadow: '0 0 10px rgba(255, 255, 255, 0.8)' }}>
+              AI + Human Coaching Combined for Real Performance
+            </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <div className="relative">
-              <div className="absolute inset-0 bg-vibrantOrange/30 blur-xl rounded-full animate-glow-pulse"></div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button
                 size="lg"
                 onClick={() => navigate("/auth")}
-                className="relative bg-vibrantOrange text-white hover:bg-white hover:text-vibrantOrange font-heading font-semibold text-lg px-8 py-6 transition-smooth shadow-orange-glow-strong hover:shadow-orange-glow active:scale-95"
+                className="bg-charcoal text-vibrantOrange border-2 border-vibrantOrange hover:bg-vibrantOrange hover:text-white font-heading font-bold text-lg px-8 py-6 transition-smooth shadow-orange-glow hover:shadow-orange-glow-strong active:scale-95"
               >
                 Get Started
               </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => navigate("/auth?mode=login")}
+                className="bg-charcoal/80 border-2 border-white text-white hover:bg-white hover:text-charcoal hover:border-vibrantOrange font-heading font-semibold text-lg px-8 py-6 transition-smooth active:scale-95"
+              >
+                Login
+              </Button>
             </div>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => navigate("/auth?mode=login")}
-              className="bg-transparent border-2 border-vibrantOrange text-white hover:bg-vibrantOrange hover:text-white hover:shadow-orange-glow font-heading font-semibold text-lg px-8 py-6 transition-smooth active:scale-95"
-            >
-              Login
-            </Button>
           </div>
         </div>
 
