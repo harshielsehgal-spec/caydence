@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,14 +6,38 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowLeft, Settings, Trophy, Calendar, MapPin } from "lucide-react";
 import { SubscriptionModal } from "@/components/SubscriptionModal";
+import { RoleSwitch } from "@/components/RoleSwitch";
+import { useUserRole } from "@/hooks/useUserRole";
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 const Profile = () => {
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
   const [userPlan, setUserPlan] = useState<"free" | "basic" | "pro" | "elite">("free");
+  const [user, setUser] = useState<User | null>(null);
+  
+  const { roles, currentRole, loading, switchRole } = useUserRole(user);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+  }, []);
 
   const handlePlanUpdate = (plan: "basic" | "pro" | "elite", billing: "monthly" | "yearly") => {
     setUserPlan(plan);
+  };
+
+  const handleRoleSwitch = (role: "athlete" | "coach") => {
+    switchRole(role);
+    if (role === "coach") {
+      navigate("/coach/home");
+    } else {
+      navigate("/dashboard");
+    }
   };
 
   const getPlanBadge = () => {
@@ -89,7 +113,7 @@ const Profile = () => {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">Athlete</Badge>
+                  <Badge variant="secondary">{currentRole === "coach" ? "Coach" : "Athlete"}</Badge>
                   {getPlanBadge()}
                   {userPlan === "free" && (
                     <Badge variant="outline" style={{ color: '#BFBFBF', borderColor: 'rgba(191, 191, 191, 0.3)' }}>
@@ -97,6 +121,17 @@ const Profile = () => {
                     </Badge>
                   )}
                 </div>
+                
+                {/* Role Switch */}
+                {!loading && roles.length > 1 && (
+                  <div className="mt-4">
+                    <RoleSwitch 
+                      roles={roles}
+                      currentRole={currentRole}
+                      onSwitch={handleRoleSwitch}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>

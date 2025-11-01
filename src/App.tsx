@@ -17,6 +17,10 @@ import Profile from "./pages/Profile";
 import VideoUpload from "./pages/VideoUpload";
 import CompareView from "./pages/CompareView";
 import SessionBooking from "./pages/SessionBooking";
+import CoachOnboarding from "./pages/CoachOnboarding";
+import CoachHome from "./pages/CoachHome";
+import CoachOffers from "./pages/CoachOffers";
+import CoachMessages from "./pages/CoachMessages";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +46,13 @@ const App = () => (
           <Route path="/ai-insights" element={<AIInsights />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
+          
+          {/* Coach Routes */}
+          <Route path="/coach/onboarding" element={<CoachOnboarding />} />
+          <Route path="/coach/home" element={<CoachHome />} />
+          <Route path="/coach/offers" element={<CoachOffers />} />
+          <Route path="/coach/messages" element={<CoachMessages />} />
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

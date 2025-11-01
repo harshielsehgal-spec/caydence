@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Dumbbell } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -13,7 +14,8 @@ const Auth = () => {
   const initialMode = searchParams.get("mode") === "login";
   
   const [isLogin, setIsLogin] = useState(initialMode);
-  const [userType, setUserType] = useState<"athlete" | "trainer">("athlete");
+  const [userType, setUserType] = useState<"athlete" | "coach">("athlete");
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -22,17 +24,66 @@ const Auth = () => {
     city: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     
-    // Mock authentication
-    toast.success(isLogin ? "Login successful!" : "Account created successfully!");
-    
-    // Navigate based on user type
-    if (userType === "athlete") {
-      navigate("/sport-selection");
-    } else {
-      navigate("/profile"); // Trainers go to profile setup
+    try {
+      if (isLogin) {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+
+        if (error) throw error;
+
+        // Fetch user's roles to determine navigation
+        const { data: rolesData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", data.user.id);
+
+        const hasCoachRole = rolesData?.some((r) => r.role === "coach");
+        
+        toast.success("Login successful!");
+        
+        if (hasCoachRole) {
+          navigate("/coach/home");
+        } else {
+          navigate("/dashboard");
+        }
+      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+          },
+        });
+
+        if (error) throw error;
+        if (!data.user) throw new Error("Signup failed");
+
+        // Insert the selected role
+        const { error: roleError } = await supabase
+          .from("user_roles")
+          .insert({ user_id: data.user.id, role: userType });
+
+        if (roleError) throw roleError;
+
+        toast.success("Account created successfully!");
+        
+        if (userType === "athlete") {
+          navigate("/sport-selection");
+        } else {
+          navigate("/coach/onboarding");
+        }
+      }
+    } catch (error: any) {
+      console.error("Auth error:", error);
+      toast.error(error.message || "Authentication failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -62,12 +113,12 @@ const Auth = () => {
             </Button>
             <Button
               type="button"
-              variant={userType === "trainer" ? "default" : "outline"}
+              variant={userType === "coach" ? "default" : "outline"}
               className="w-full font-poppins"
-              onClick={() => setUserType("trainer")}
+              onClick={() => setUserType("coach")}
             >
               <Dumbbell className="mr-2 h-4 w-4" />
-              Trainer
+              Coach
             </Button>
           </div>
 
@@ -136,8 +187,12 @@ const Auth = () => {
               </>
             )}
 
-            <Button type="submit" className="w-full font-poppins font-semibold">
-              {isLogin ? "Login" : "Sign Up"}
+            <Button 
+              type="submit" 
+              className="w-full font-poppins font-semibold" 
+              disabled={loading}
+            >
+              {loading ? "Please wait..." : isLogin ? "Login" : "Sign Up"}
             </Button>
           </form>
 
