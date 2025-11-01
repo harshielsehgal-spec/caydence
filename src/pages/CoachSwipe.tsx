@@ -297,18 +297,32 @@ const CoachSwipe = () => {
 
   if (!currentCoach) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-charcoal via-charcoal/95 to-crimson/20 flex items-center justify-center px-4">
-        <div className="text-center space-y-4 animate-slide-up max-w-md mx-auto">
+      <div 
+        className="min-h-screen flex items-center justify-center px-4"
+        style={{
+          background: 'linear-gradient(135deg, #0D0D0D 0%, #1A1A1A 50%, #0D0D0D 100%)',
+        }}
+      >
+        <div className="text-center space-y-6 animate-slide-up max-w-md mx-auto bg-charcoal/60 backdrop-blur-sm p-8 rounded-2xl border-2 border-vibrantOrange/30 shadow-orange-glow">
           <div className="text-6xl mb-4">🔍</div>
-          <h2 className="text-2xl font-bold font-poppins">No coaches match your filters</h2>
-          <p className="text-muted-foreground font-montserrat">
+          <h2 className="text-2xl font-bold font-heading" style={{ color: '#F2F2F2' }}>
+            No coaches match your filters
+          </h2>
+          <p className="font-body" style={{ color: '#BFBFBF' }}>
             Try clearing filters or expanding your search criteria.
           </p>
           <div className="flex flex-col gap-3 justify-center">
-            <Button onClick={handleResetFilters} className="bg-crimson hover:bg-crimson/90">
+            <Button 
+              onClick={handleResetFilters} 
+              className="bg-vibrantOrange hover:bg-vibrantOrange/90 shadow-orange-glow hover:shadow-orange-glow-strong transition-smooth"
+            >
               Reset Filters
             </Button>
-            <Button onClick={() => navigate("/skill-mode")} variant="outline">
+            <Button 
+              onClick={() => navigate("/skill-mode")} 
+              variant="outline"
+              className="border-2 border-vibrantOrange text-white hover:bg-vibrantOrange hover:text-white"
+            >
               Back to Search
             </Button>
             {shortlistedIds.length > 0 && (
@@ -323,22 +337,35 @@ const CoachSwipe = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-charcoal via-charcoal/95 to-crimson/20">
+    <div 
+      className="min-h-screen relative"
+      style={{
+        background: 'linear-gradient(135deg, #0D0D0D 0%, #1A1A1A 50%, #0D0D0D 100%)',
+      }}
+    >
+      {/* Subtle texture overlay */}
+      <div 
+        className="absolute inset-0 opacity-5 pointer-events-none"
+        style={{
+          backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,107,0,0.1) 10px, rgba(255,107,0,0.1) 20px)',
+        }}
+      />
+      
       {/* Top Bar */}
-      <div className="sticky top-0 z-20 bg-charcoal/90 backdrop-blur-md border-b border-white/10">
+      <div className="sticky top-0 z-20 bg-charcoal/95 backdrop-blur-md border-b-2 border-vibrantOrange/20 shadow-orange-glow/10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate("/skill-mode")}
-            className="text-white hover:bg-white/10"
+            className="text-vibrantOrange hover:bg-vibrantOrange/10 hover:shadow-orange-glow transition-smooth"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           
           <div className="text-center">
-            <h1 className="text-xl font-bold font-poppins text-white">{selectedSport}</h1>
-            <p className="text-xs text-muted-foreground font-montserrat">
+            <h1 className="text-xl font-bold font-heading" style={{ color: '#F2F2F2' }}>{selectedSport}</h1>
+            <p className="text-xs font-body" style={{ color: '#BFBFBF' }}>
               {currentIndex + 1} / {coaches.length}
             </p>
           </div>
@@ -347,7 +374,7 @@ const CoachSwipe = () => {
             variant="ghost"
             size="icon"
             onClick={() => setShowFilters(!showFilters)}
-            className="text-white hover:bg-white/10"
+            className="text-vibrantOrange hover:bg-vibrantOrange/10 hover:shadow-orange-glow transition-smooth"
           >
             <SlidersHorizontal className="h-5 w-5" />
           </Button>
@@ -355,17 +382,21 @@ const CoachSwipe = () => {
 
         {/* Filters Panel */}
         {showFilters && (
-          <div className="border-t border-white/10 bg-charcoal/95 animate-accordion-down">
-            <div className="max-w-6xl mx-auto px-4 py-4 space-y-4">
+          <div className="border-t-2 border-vibrantOrange/20 bg-charcoal/95 animate-accordion-down">
+            <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+              {/* Section Divider */}
+              <div className="h-px bg-gradient-to-r from-transparent via-vibrantOrange/50 to-transparent"></div>
+              
               {/* Sort Dropdown */}
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-muted-foreground font-montserrat">
+                <label className="text-xs font-semibold font-body tracking-wider" style={{ color: '#F2F2F2' }}>
                   SORT BY
                 </label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full bg-charcoal border border-white/20 text-white rounded-lg px-3 py-2 text-sm font-montserrat focus:outline-none focus:ring-2 focus:ring-crimson"
+                  className="w-full bg-charcoal/80 border-2 border-vibrantOrange/30 rounded-lg px-4 py-3 text-sm font-body transition-smooth focus:outline-none focus:border-vibrantOrange focus:shadow-orange-glow hover:border-vibrantOrange/50"
+                  style={{ color: '#F2F2F2' }}
                 >
                   <option value="recommended">Recommended</option>
                   <option value="price-low">Price: Low → High</option>
@@ -376,46 +407,59 @@ const CoachSwipe = () => {
               </div>
 
               {/* Quick Filters */}
-              <div className="space-y-3">
-                <label className="text-xs font-semibold text-muted-foreground font-montserrat">
+              <div className="space-y-4">
+                <label className="text-xs font-semibold font-body tracking-wider" style={{ color: '#F2F2F2' }}>
                   FILTERS
                 </label>
                 
                 {/* Mode Filter */}
                 <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground font-montserrat">Mode</p>
+                  <p className="text-xs font-body" style={{ color: '#BFBFBF' }}>Mode</p>
                   <div className="flex gap-2 flex-wrap">
-                    <Badge
-                      variant={filterMode === "all" ? "default" : "outline"}
-                      className={`cursor-pointer ${filterMode === "all" ? "bg-crimson" : ""}`}
+                    <button
                       onClick={() => setFilterMode("all")}
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-smooth ${
+                        filterMode === "all" 
+                          ? "bg-vibrantOrange text-white border-2 border-vibrantOrange shadow-orange-glow animate-bounce-subtle" 
+                          : "bg-charcoal/60 text-coolGray border-2 border-white/10 hover:border-vibrantOrange/50"
+                      }`}
                     >
                       All
-                    </Badge>
-                    <Badge
-                      variant={filterMode === "online" ? "default" : "outline"}
-                      className={`cursor-pointer ${filterMode === "online" ? "bg-crimson" : ""}`}
+                    </button>
+                    <button
                       onClick={() => setFilterMode("online")}
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-smooth ${
+                        filterMode === "online" 
+                          ? "bg-vibrantOrange text-white border-2 border-vibrantOrange shadow-orange-glow animate-bounce-subtle" 
+                          : "bg-charcoal/60 text-coolGray border-2 border-white/10 hover:border-vibrantOrange/50"
+                      }`}
                     >
                       Online
-                    </Badge>
-                    <Badge
-                      variant={filterMode === "offline" ? "default" : "outline"}
-                      className={`cursor-pointer ${filterMode === "offline" ? "bg-crimson" : ""}`}
+                    </button>
+                    <button
                       onClick={() => setFilterMode("offline")}
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-smooth ${
+                        filterMode === "offline" 
+                          ? "bg-vibrantOrange text-white border-2 border-vibrantOrange shadow-orange-glow animate-bounce-subtle" 
+                          : "bg-charcoal/60 text-coolGray border-2 border-white/10 hover:border-vibrantOrange/50"
+                      }`}
                     >
                       Offline
-                    </Badge>
+                    </button>
                   </div>
                 </div>
 
+                {/* Section Divider */}
+                <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
                 {/* City Filter */}
                 <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground font-montserrat">City</p>
+                  <p className="text-xs font-body" style={{ color: '#BFBFBF' }}>City</p>
                   <select
                     value={filterCity}
                     onChange={(e) => setFilterCity(e.target.value)}
-                    className="w-full bg-charcoal border border-white/20 text-white rounded-lg px-3 py-2 text-sm font-montserrat focus:outline-none focus:ring-2 focus:ring-crimson"
+                    className="w-full bg-charcoal/80 border-2 border-vibrantOrange/30 rounded-lg px-4 py-3 text-sm font-body transition-smooth focus:outline-none focus:border-vibrantOrange focus:shadow-orange-glow hover:border-vibrantOrange/50"
+                    style={{ color: '#F2F2F2' }}
                   >
                     <option value="all">All Cities</option>
                     {availableCities.map(city => (
@@ -425,18 +469,18 @@ const CoachSwipe = () => {
                 </div>
 
                 {/* Fee Filter */}
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-montserrat text-white">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-charcoal/40 border border-white/10">
+                  <label className="text-sm font-body font-semibold" style={{ color: '#F2F2F2' }}>
                     Fee ≤ ₹800
                   </label>
                   <button
                     onClick={() => setFilterMaxFee(!filterMaxFee)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      filterMaxFee ? "bg-crimson" : "bg-white/20"
+                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-smooth ${
+                      filterMaxFee ? "bg-vibrantOrange shadow-orange-glow" : "bg-white/20"
                     }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform shadow-md ${
                         filterMaxFee ? "translate-x-6" : "translate-x-1"
                       }`}
                     />
@@ -444,11 +488,14 @@ const CoachSwipe = () => {
                 </div>
               </div>
 
+              {/* Section Divider */}
+              <div className="h-px bg-gradient-to-r from-transparent via-vibrantOrange/50 to-transparent"></div>
+
               {/* Reset Button */}
               <Button
                 onClick={handleResetFilters}
                 variant="outline"
-                className="w-full text-sm"
+                className="w-full text-sm border-2 border-vibrantOrange/50 text-white hover:bg-vibrantOrange hover:text-white hover:border-vibrantOrange transition-smooth"
               >
                 Reset Filters
               </Button>
@@ -476,75 +523,73 @@ const CoachSwipe = () => {
       </div>
 
       {/* Action Buttons */}
-      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-charcoal via-charcoal/95 to-transparent pb-8 pt-6">
-        <div className="flex items-center justify-center gap-6">
-          <Button
-            size="icon"
-            variant="outline"
-            className="h-14 w-14 rounded-full border-2 hover:scale-110 transition-transform"
+      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-charcoal via-charcoal/95 to-transparent pb-8 pt-8 z-10">
+        <div className="flex items-center justify-center gap-8">
+          <button
             onClick={handleSwipeLeft}
+            className="h-16 w-16 rounded-full bg-charcoal border-3 border-destructive/80 flex items-center justify-center hover:scale-110 hover:shadow-[0_0_20px_rgba(239,68,68,0.6)] transition-smooth active:scale-95 group"
           >
-            <X className="h-6 w-6 text-destructive" />
-          </Button>
+            <X className="h-7 w-7 text-destructive group-hover:text-white transition-colors" />
+          </button>
 
-          <Button
-            size="icon"
-            variant="outline"
-            className="h-16 w-16 rounded-full border-2 hover:scale-110 transition-transform"
+          <button
             onClick={handleSwipeUp}
+            className="h-20 w-20 rounded-full bg-vibrantOrange border-3 border-vibrantOrange flex items-center justify-center hover:scale-110 shadow-orange-glow hover:shadow-orange-glow-strong transition-smooth active:scale-95 group"
           >
-            <Eye className="h-7 w-7 text-primary" />
-          </Button>
+            <Eye className="h-8 w-8 text-white" />
+          </button>
 
-          <Button
-            size="icon"
-            className="h-14 w-14 rounded-full bg-crimson hover:bg-crimson/90 hover:scale-110 transition-transform"
+          <button
             onClick={handleSwipeRight}
+            className="h-16 w-16 rounded-full bg-charcoal border-3 border-vibrantOrange flex items-center justify-center hover:scale-110 hover:bg-vibrantOrange hover:shadow-orange-glow-strong transition-smooth active:scale-95 group"
           >
-            <Heart className="h-6 w-6" />
-          </Button>
+            <Heart className="h-7 w-7 text-vibrantOrange group-hover:text-white transition-colors" />
+          </button>
         </div>
-        <p className="text-center text-xs text-muted-foreground mt-4 font-montserrat">
+        <p className="text-center text-xs mt-6 font-body" style={{ color: '#BFBFBF' }}>
           Swipe right to like • Tap to view profile • Swipe left to skip
         </p>
       </div>
 
       {/* Profile Modal */}
       <Dialog open={showProfileModal} onOpenChange={setShowProfileModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-charcoal border-2 border-vibrantOrange/30">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-poppins">Coach Profile</DialogTitle>
+            <DialogTitle className="text-2xl font-heading" style={{ color: '#F2F2F2' }}>Coach Profile</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-6">
+            {/* Section Divider */}
+            <div className="h-px bg-gradient-to-r from-transparent via-vibrantOrange to-transparent"></div>
+            
             {/* Header */}
             <div className="flex items-start gap-4">
               <img
                 src={currentCoach.image}
                 alt={currentCoach.name}
-                className="w-24 h-24 rounded-full object-cover"
+                className="w-24 h-24 rounded-full object-cover border-3 border-vibrantOrange/50 shadow-orange-glow"
               />
               <div className="flex-1">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h2 className="text-xl font-bold font-poppins">{currentCoach.name}</h2>
-                    <p className="text-sm text-muted-foreground font-montserrat">
+                    <h2 className="text-xl font-bold font-heading" style={{ color: '#F2F2F2' }}>{currentCoach.name}</h2>
+                    <p className="text-sm font-body" style={{ color: '#BFBFBF' }}>
                       {currentCoach.specialization}
                     </p>
                   </div>
-                  <Badge className="bg-crimson text-white">
-                    <CheckCircle className="h-3 w-3 mr-1" />
+                  <div className="bg-white text-charcoal px-3 py-1.5 rounded-full flex items-center gap-1.5 font-semibold text-xs shadow-orange-glow">
+                    <CheckCircle className="h-3.5 w-3.5 text-vibrantOrange" />
                     AI Verified
-                  </Badge>
+                  </div>
                 </div>
                 
-                <div className="flex items-center gap-4 mt-2 text-sm">
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
-                    <span className="font-semibold">{currentCoach.rating}</span>
+                <div className="flex items-center gap-4 mt-3 text-sm">
+                  <div className="flex items-center bg-charcoal/50 px-3 py-1.5 rounded-full">
+                    <Star className="h-4 w-4 mr-1" style={{ fill: '#FFB800', color: '#FFB800' }} />
+                    <span className="font-semibold" style={{ color: '#F2F2F2' }}>{currentCoach.rating}</span>
                   </div>
-                  <div className="flex items-center text-muted-foreground">
-                    <MapPin className="h-4 w-4 mr-1" />
+                  <div className="flex items-center" style={{ color: '#BFBFBF' }}>
+                    <MapPin className="h-4 w-4 mr-1 text-vibrantOrange" />
                     {currentCoach.city}
                   </div>
                 </div>
@@ -553,52 +598,65 @@ const CoachSwipe = () => {
 
             {/* Badges */}
             <div className="flex flex-wrap gap-2">
-              <Badge variant="secondary">{currentCoach.sport}</Badge>
-              <Badge variant="outline">
+              <div className="bg-vibrantOrange/20 text-vibrantOrange px-3 py-1.5 rounded-lg text-sm font-semibold border border-vibrantOrange/40">
+                {currentCoach.sport}
+              </div>
+              <div className="bg-charcoal/60 text-white px-3 py-1.5 rounded-lg text-sm font-semibold border border-white/20 flex items-center gap-1.5">
                 {getModeIcon()}
-                <span className="ml-1">{currentCoach.mode}</span>
-              </Badge>
-              <Badge variant="outline">{currentCoach.experience}</Badge>
+                <span>{currentCoach.mode}</span>
+              </div>
+              <div className="bg-charcoal/60 text-white px-3 py-1.5 rounded-lg text-sm font-semibold border border-white/20">
+                {currentCoach.experience}
+              </div>
             </div>
+
+            {/* Section Divider */}
+            <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
 
             {/* Description */}
             <div>
-              <h3 className="font-semibold font-poppins mb-2">About</h3>
-              <p className="text-sm text-muted-foreground font-montserrat">
+              <h3 className="font-semibold font-heading mb-3 text-vibrantOrange">About</h3>
+              <p className="text-sm font-body" style={{ color: '#BFBFBF' }}>
                 {currentCoach.description}
               </p>
             </div>
 
             {/* Certifications */}
             <div>
-              <h3 className="font-semibold font-poppins mb-2">Certifications</h3>
+              <h3 className="font-semibold font-heading mb-3 text-vibrantOrange">Certifications</h3>
               <div className="flex flex-wrap gap-2">
                 {currentCoach.certifications.map((cert, index) => (
-                  <Badge key={index} variant="outline" className="font-montserrat">
+                  <div 
+                    key={index}
+                    className="bg-charcoal/60 text-white px-3 py-1.5 rounded-lg text-xs font-semibold border border-white/20"
+                  >
                     {cert}
-                  </Badge>
+                  </div>
                 ))}
               </div>
             </div>
 
             {/* Achievements */}
             <div>
-              <h3 className="font-semibold font-poppins mb-2">Achievements</h3>
-              <ul className="space-y-1">
+              <h3 className="font-semibold font-heading mb-3 text-vibrantOrange">Achievements</h3>
+              <ul className="space-y-2">
                 {currentCoach.achievements.map((achievement, index) => (
-                  <li key={index} className="text-sm text-muted-foreground font-montserrat flex items-start">
-                    <span className="text-crimson mr-2">•</span>
+                  <li key={index} className="text-sm font-body flex items-start" style={{ color: '#BFBFBF' }}>
+                    <span className="text-vibrantOrange mr-2 font-bold">•</span>
                     {achievement}
                   </li>
                 ))}
               </ul>
             </div>
 
+            {/* Section Divider */}
+            <div className="h-px bg-gradient-to-r from-transparent via-vibrantOrange to-transparent"></div>
+
             {/* Price & Action */}
-            <div className="flex items-center justify-between pt-4 border-t">
-              <div className="text-2xl font-bold text-crimson font-poppins">
+            <div className="flex items-center justify-between pt-2">
+              <div className="text-3xl font-bold text-vibrantOrange font-heading">
                 ₹{currentCoach.price}
-                <span className="text-sm font-normal text-muted-foreground">/session</span>
+                <span className="text-sm font-normal" style={{ color: '#BFBFBF' }}>/session</span>
               </div>
               <Button 
                 onClick={() => {
@@ -606,7 +664,7 @@ const CoachSwipe = () => {
                   setShowProfileModal(false);
                   setShowActionModal(true);
                 }}
-                className="bg-crimson hover:bg-crimson/90"
+                className="bg-vibrantOrange hover:bg-vibrantOrange/90 shadow-orange-glow hover:shadow-orange-glow-strong transition-smooth"
               >
                 Book Session
               </Button>
@@ -617,33 +675,39 @@ const CoachSwipe = () => {
 
       {/* Action Modal */}
       <Dialog open={showActionModal} onOpenChange={setShowActionModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-charcoal border-2 border-vibrantOrange/30">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-poppins text-center">
+            <DialogTitle className="text-2xl font-heading text-center" style={{ color: '#F2F2F2' }}>
               What's Next?
             </DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 py-4">
             {selectedCoachForAction && (
-              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
-                <img
-                  src={selectedCoachForAction.image}
-                  alt={selectedCoachForAction.name}
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-                <div>
-                  <p className="font-semibold font-poppins">{selectedCoachForAction.name}</p>
-                  <p className="text-sm text-muted-foreground font-montserrat">
-                    Added to shortlist ✓
-                  </p>
+              <>
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-vibrantOrange/30">
+                  <img
+                    src={selectedCoachForAction.image}
+                    alt={selectedCoachForAction.name}
+                    className="w-14 h-14 rounded-full object-cover border-2 border-vibrantOrange/50 shadow-orange-glow"
+                  />
+                  <div>
+                    <p className="font-semibold font-heading" style={{ color: '#F2F2F2' }}>
+                      {selectedCoachForAction.name}
+                    </p>
+                    <p className="text-sm font-body flex items-center gap-1" style={{ color: '#BFBFBF' }}>
+                      <span className="text-vibrantOrange">✓</span> Added to shortlist
+                    </p>
+                  </div>
                 </div>
-              </div>
+
+                <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+              </>
             )}
 
             <Button
               onClick={handleBookSession}
-              className="w-full h-14 bg-crimson hover:bg-crimson/90 text-base font-semibold"
+              className="w-full h-14 bg-vibrantOrange hover:bg-vibrantOrange/90 text-white text-base font-semibold shadow-orange-glow hover:shadow-orange-glow-strong transition-smooth"
             >
               🏋️ Start Training / Book Session
             </Button>
@@ -651,7 +715,7 @@ const CoachSwipe = () => {
             <Button
               onClick={handleViewDashboard}
               variant="outline"
-              className="w-full h-14 text-base font-semibold"
+              className="w-full h-14 text-base font-semibold border-2 border-vibrantOrange/50 text-white hover:bg-vibrantOrange hover:text-white hover:border-vibrantOrange transition-smooth"
             >
               📊 View My Dashboard
             </Button>
@@ -659,7 +723,8 @@ const CoachSwipe = () => {
             <Button
               onClick={handleContinueBrowsing}
               variant="ghost"
-              className="w-full text-sm text-muted-foreground hover:text-foreground"
+              className="w-full text-sm hover:text-vibrantOrange transition-smooth"
+              style={{ color: '#BFBFBF' }}
             >
               Continue browsing coaches →
             </Button>

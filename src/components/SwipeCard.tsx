@@ -92,13 +92,19 @@ const SwipeCard = ({ coach, onSwipeLeft, onSwipeRight, onSwipeUp, style }: Swipe
       onTouchMove={(e) => handleMove(e.touches[0].clientX, e.touches[0].clientY)}
       onTouchEnd={handleEnd}
     >
-      <div className="w-full h-full bg-card rounded-[16px] shadow-card overflow-hidden flex flex-col">
+      <div 
+        className="w-full h-full rounded-2xl overflow-hidden flex flex-col border-3 transition-smooth hover:border-vibrantOrange hover:shadow-orange-glow"
+        style={{
+          backgroundColor: '#181818',
+          borderColor: 'rgba(255, 107, 0, 0.3)',
+        }}
+      >
         {/* AI Verified Badge */}
         <div className="absolute top-4 right-4 z-10">
-          <Badge className="bg-crimson text-white font-semibold">
-            <CheckCircle className="h-3 w-3 mr-1" />
+          <div className="bg-white text-charcoal px-3 py-1.5 rounded-full flex items-center gap-1.5 font-semibold text-xs shadow-orange-glow">
+            <CheckCircle className="h-3.5 w-3.5 text-vibrantOrange" />
             AI Verified
-          </Badge>
+          </div>
         </div>
 
         {/* Coach Photo */}
@@ -113,44 +119,49 @@ const SwipeCard = ({ coach, onSwipeLeft, onSwipeRight, onSwipeUp, style }: Swipe
         </div>
 
         {/* Coach Info */}
-        <div className="flex-1 p-6 space-y-3 overflow-y-auto">
+        <div className="flex-1 p-6 space-y-4 overflow-y-auto">
+          {/* Section Divider */}
+          <div className="h-0.5 bg-gradient-to-r from-transparent via-vibrantOrange to-transparent -mt-3"></div>
+          
           <div>
-            <h2 className="text-2xl font-bold font-poppins mb-1">{coach.name}</h2>
-            <p className="text-sm text-muted-foreground font-montserrat">{coach.specialization}</p>
+            <h2 className="text-2xl font-bold font-heading mb-1" style={{ color: '#F2F2F2' }}>
+              {coach.name}
+            </h2>
+            <p className="text-sm font-body" style={{ color: '#BFBFBF' }}>{coach.specialization}</p>
           </div>
 
           <div className="flex items-center gap-4 text-sm">
-            <div className="flex items-center">
-              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
-              <span className="font-semibold">{coach.rating}</span>
+            <div className="flex items-center bg-charcoal/50 px-3 py-1.5 rounded-full">
+              <Star className="h-4 w-4 mr-1" style={{ fill: '#FFB800', color: '#FFB800' }} />
+              <span className="font-semibold" style={{ color: '#F2F2F2' }}>{coach.rating}</span>
             </div>
-            <div className="flex items-center text-muted-foreground">
-              <MapPin className="h-4 w-4 mr-1" />
+            <div className="flex items-center" style={{ color: '#BFBFBF' }}>
+              <MapPin className="h-4 w-4 mr-1 text-vibrantOrange" />
               {coach.city}
             </div>
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Badge variant="secondary" className="font-montserrat">
+            <div className="bg-vibrantOrange/20 text-vibrantOrange px-3 py-1 rounded-lg text-xs font-semibold border border-vibrantOrange/40">
               {coach.sport}
-            </Badge>
-            <Badge variant="outline" className="font-montserrat">
+            </div>
+            <div className="bg-charcoal/60 text-white px-3 py-1 rounded-lg text-xs font-semibold border border-white/20 flex items-center gap-1">
               {getModeIcon()}
-              <span className="ml-1">{coach.mode}</span>
-            </Badge>
-            <Badge variant="outline" className="font-montserrat">
+              <span>{coach.mode}</span>
+            </div>
+            <div className="bg-charcoal/60 text-white px-3 py-1 rounded-lg text-xs font-semibold border border-white/20">
               {coach.experience}
-            </Badge>
+            </div>
           </div>
 
-          <p className="text-sm text-muted-foreground font-montserrat line-clamp-2">
+          <p className="text-sm font-body line-clamp-2" style={{ color: '#BFBFBF' }}>
             {coach.bio}
           </p>
 
-          <div className="pt-2 border-t">
-            <div className="text-2xl font-bold text-crimson font-poppins">
+          <div className="pt-3 border-t-2 border-vibrantOrange/30">
+            <div className="text-3xl font-bold text-vibrantOrange font-heading flex items-baseline gap-2">
               ₹{coach.price}
-              <span className="text-sm font-normal text-muted-foreground">/session</span>
+              <span className="text-sm font-normal" style={{ color: '#BFBFBF' }}>/session</span>
             </div>
           </div>
         </div>
