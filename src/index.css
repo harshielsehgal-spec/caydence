@@ -93,11 +93,17 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', 'Nunito Sans', sans-serif;
+    font-weight: 400;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Poppins', 'Montserrat', sans-serif;
+    font-weight: 700;
+  }
+  
+  strong, .highlight, .accent-text {
+    @apply text-primary font-semibold;
   }
 }
 
@@ -162,6 +168,75 @@ All colors MUST be HSL.
   
   .animate-slide-up {
     animation: slide-up 0.5s ease-out;
+  }
+  
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .animate-slide-in {
+    animation: slide-in 0.4s ease-out;
+  }
+  
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+  
+  @keyframes bounce-subtle {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+  
+  .animate-bounce-subtle {
+    animation: bounce-subtle 0.3s ease-in-out;
+  }
+  
+  @keyframes glow-pulse {
+    0%, 100% {
+      box-shadow: 0 0 20px hsl(18 100% 50% / 0.4), 0 0 40px hsl(25 100% 50% / 0.2);
+    }
+    50% {
+      box-shadow: 0 0 30px hsl(18 100% 50% / 0.6), 0 0 60px hsl(25 100% 50% / 0.3);
+    }
+  }
+  
+  .animate-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes progress-shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
+  .animate-progress-shimmer {
+    background: linear-gradient(90deg, hsl(18 100% 50% / 0.3) 0%, hsl(18 100% 50%) 50%, hsl(25 100% 50% / 0.3) 100%);
+    background-size: 200% 100%;
+    animation: progress-shimmer 2s linear infinite;
   }
   
   @keyframes rhythm-pulse {
