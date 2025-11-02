@@ -34,7 +34,10 @@ const Dashboard = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate("/coach-swipe")}
+              onClick={() => {
+                sessionStorage.setItem('fromDashboard', 'true');
+                navigate("/coach-swipe");
+              }}
               className="hover:bg-accent"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -247,7 +250,10 @@ const Dashboard = () => {
           </Button>
           <Button
             variant="outline"
-            onClick={() => navigate("/coach-swipe")}
+            onClick={() => {
+              sessionStorage.setItem('fromDashboard', 'true');
+              navigate("/coach-swipe");
+            }}
             className="h-20 text-lg font-poppins"
           >
             Find Coaches

@@ -182,17 +182,41 @@ type SwipeState = {
   shortlisted: CoachSimple[];
 };
 
+// Default filter state
+const DEFAULT_FILTERS = {
+  sport: null,
+  skillLevel: null,
+  mode: null,
+  priceMin: 0,
+  priceMax: 99999,
+  city: null,
+  verifiedOnly: false,
+};
+
 const CoachSwipe = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const selectedSport = location.state?.sport || "All Sports";
 
-  // Filter and Sort State
-  const [sortBy, setSortBy] = useState<string>("recommended");
-  const [filterMode, setFilterMode] = useState<string>("all");
-  const [filterCity, setFilterCity] = useState<string>("all");
-  const [filterMaxFee, setFilterMaxFee] = useState<boolean>(false);
+  // Filter and Sort State with sessionStorage persistence
+  const [sortBy, setSortBy] = useState<string>(() => {
+    const saved = sessionStorage.getItem('cadenceFilters');
+    return saved ? JSON.parse(saved).sortBy || "recommended" : "recommended";
+  });
+  const [filterMode, setFilterMode] = useState<string>(() => {
+    const saved = sessionStorage.getItem('cadenceFilters');
+    return saved ? JSON.parse(saved).mode || "all" : "all";
+  });
+  const [filterCity, setFilterCity] = useState<string>(() => {
+    const saved = sessionStorage.getItem('cadenceFilters');
+    return saved ? JSON.parse(saved).city || "all" : "all";
+  });
+  const [filterMaxFee, setFilterMaxFee] = useState<boolean>(() => {
+    const saved = sessionStorage.getItem('cadenceFilters');
+    return saved ? JSON.parse(saved).maxFee || false : false;
+  });
   const [showFilters, setShowFilters] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Swipe state with localStorage persistence
   const [swipeState, setSwipeState] = useState<SwipeState>(() => {
@@ -205,39 +229,41 @@ const CoachSwipe = () => {
   const [showShortlistDrawer, setShowShortlistDrawer] = useState(false);
   const [activeTab, setActiveTab] = useState<'liked' | 'passed'>('liked');
 
-  // Apply filters and sorting
+  // Apply filters and sorting with proper type coercion and case-insensitive matching
   const getFilteredAndSortedCoaches = () => {
     let filtered = mockCoaches.filter(
       coach => selectedSport === "All Sports" || coach.sport === selectedSport
     );
 
-    // Apply mode filter
+    // Apply mode filter - case insensitive
     if (filterMode !== "all") {
       filtered = filtered.filter(coach => 
-        coach.mode.toLowerCase().includes(filterMode.toLowerCase())
+        coach.mode.toLowerCase().trim().includes(filterMode.toLowerCase().trim())
       );
     }
 
-    // Apply city filter
+    // Apply city filter - case insensitive
     if (filterCity !== "all") {
-      filtered = filtered.filter(coach => coach.city === filterCity);
+      filtered = filtered.filter(coach => 
+        coach.city.toLowerCase().trim() === filterCity.toLowerCase().trim()
+      );
     }
 
-    // Apply max fee filter
+    // Apply max fee filter - ensure numeric comparison
     if (filterMaxFee) {
-      filtered = filtered.filter(coach => coach.price <= 800);
+      filtered = filtered.filter(coach => Number(coach.price) <= 800);
     }
 
     // Apply sorting
     switch (sortBy) {
       case "price-low":
-        filtered.sort((a, b) => a.price - b.price);
+        filtered.sort((a, b) => Number(a.price) - Number(b.price));
         break;
       case "price-high":
-        filtered.sort((a, b) => b.price - a.price);
+        filtered.sort((a, b) => Number(b.price) - Number(a.price));
         break;
       case "rating":
-        filtered.sort((a, b) => b.rating - a.rating);
+        filtered.sort((a, b) => Number(b.rating) - Number(a.rating));
         break;
       case "experience":
         filtered.sort((a, b) => 
@@ -252,23 +278,63 @@ const CoachSwipe = () => {
     return filtered;
   };
 
+  // Fallback to recommended coaches if no results
+  const getRecommendedCoaches = () => {
+    return mockCoaches
+      .filter(coach => coach.rating >= 4.7)
+      .sort((a, b) => Number(b.rating) - Number(a.rating))
+      .slice(0, 5);
+  };
+
   const [coaches, setCoaches] = useState(getFilteredAndSortedCoaches());
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showActionModal, setShowActionModal] = useState(false);
   const [selectedCoachForAction, setSelectedCoachForAction] = useState<typeof currentCoach | null>(null);
   const [previewCoach, setPreviewCoach] = useState<CoachSimple | null>(null);
+  const [showRecommendedFallback, setShowRecommendedFallback] = useState(false);
+
+  // Clear filters on mount if coming from dashboard
+  useEffect(() => {
+    const fromDashboard = sessionStorage.getItem('fromDashboard');
+    if (fromDashboard === 'true') {
+      sessionStorage.removeItem('cadenceFilters');
+      sessionStorage.removeItem('fromDashboard');
+    }
+  }, []);
 
   // Persist swipe state to localStorage
   useEffect(() => {
     localStorage.setItem('cadenceSwipeState', JSON.stringify(swipeState));
   }, [swipeState]);
 
-  // Re-filter when filters change
+  // Persist filters to sessionStorage
+  useEffect(() => {
+    sessionStorage.setItem('cadenceFilters', JSON.stringify({
+      sortBy,
+      mode: filterMode,
+      city: filterCity,
+      maxFee: filterMaxFee,
+    }));
+  }, [sortBy, filterMode, filterCity, filterMaxFee]);
+
+  // Re-filter when filters change with loading state
   React.useEffect(() => {
+    setIsLoading(true);
     const filtered = getFilteredAndSortedCoaches();
-    setCoaches(filtered);
+    
+    // If no results, show recommended coaches
+    if (filtered.length === 0) {
+      const recommended = getRecommendedCoaches();
+      setCoaches(recommended);
+      setShowRecommendedFallback(true);
+    } else {
+      setCoaches(filtered);
+      setShowRecommendedFallback(false);
+    }
+    
     setCurrentIndex(0);
+    setTimeout(() => setIsLoading(false), 300);
   }, [sortBy, filterMode, filterCity, filterMaxFee, selectedSport]);
 
   const currentCoach = coaches[currentIndex];
@@ -283,10 +349,12 @@ const CoachSwipe = () => {
   ).sort();
 
   const handleResetFilters = () => {
+    sessionStorage.removeItem('cadenceFilters');
     setSortBy("recommended");
     setFilterMode("all");
     setFilterCity("all");
     setFilterMaxFee(false);
+    toast.success("Filters reset!");
   };
 
   const handleSwipeLeft = () => {
@@ -361,7 +429,7 @@ const CoachSwipe = () => {
     return <Video className="h-4 w-4" />;
   };
 
-  if (!currentCoach) {
+  if (!currentCoach && !showRecommendedFallback) {
     return (
       <div 
         className="min-h-screen flex items-center justify-center px-4"
@@ -372,10 +440,10 @@ const CoachSwipe = () => {
         <div className="text-center space-y-6 animate-slide-up max-w-md mx-auto bg-charcoal/60 backdrop-blur-sm p-8 rounded-2xl border-2 border-vibrantOrange/30 shadow-orange-glow">
           <div className="text-6xl mb-4">🔍</div>
           <h2 className="text-2xl font-bold font-heading" style={{ color: '#F2F2F2' }}>
-            No coaches match your filters
+            No coaches found
           </h2>
           <p className="font-body" style={{ color: '#BFBFBF' }}>
-            Try clearing filters or expanding your search criteria.
+            Try clearing filters or check back later for new coaches.
           </p>
           <div className="flex flex-col gap-3 justify-center">
             <Button 
@@ -588,6 +656,25 @@ const CoachSwipe = () => {
         )}
       </div>
 
+      {/* Loading Shimmer */}
+      {isLoading && (
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-charcoal/50 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-12 w-12 border-4 border-vibrantOrange/30 border-t-vibrantOrange rounded-full animate-spin" />
+            <p className="text-sm text-white font-body">Loading coaches...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Recommended Fallback Notice */}
+      {showRecommendedFallback && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-20 bg-vibrantOrange/20 border border-vibrantOrange/50 rounded-lg px-4 py-2 backdrop-blur-sm">
+          <p className="text-sm text-white font-body">
+            Showing recommended coaches near you
+          </p>
+        </div>
+      )}
+
       {/* Swipe Area */}
       <div className="relative h-[calc(100vh-180px)] max-w-2xl mx-auto">
         {coaches.slice(currentIndex, currentIndex + 2).map((coach, index) => (
@@ -665,7 +752,11 @@ const CoachSwipe = () => {
       {/* Bottom Panels - Hidden on mobile */}
       <div className="hidden md:flex fixed bottom-[120px] left-0 right-0 z-10 justify-between px-4 pointer-events-none">
         {/* Passed Panel - Left */}
-        <div className="flex-1 max-w-md pointer-events-auto">
+        <div 
+          className={`flex-1 max-w-md pointer-events-auto transition-all ${
+            draggedCoach && dragSource !== 'passed' ? 'ring-2 ring-destructive/50 ring-offset-2 ring-offset-charcoal' : ''
+          }`}
+        >
           <CoachChipPanel 
             title="Passed"
             coaches={swipeState.passed}
@@ -682,6 +773,7 @@ const CoachSwipe = () => {
                 ...prev,
                 passed: prev.passed.filter(c => c.id !== id)
               }));
+              toast.success("Removed from passed list");
             }}
             onViewProfile={(coach) => {
               const fullCoach = mockCoaches.find(c => c.id === coach.id);
@@ -698,6 +790,7 @@ const CoachSwipe = () => {
                   liked: prev.liked.filter(c => c.id !== coach.id),
                   passed: [...prev.passed.filter(c => c.id !== coach.id), coach]
                 }));
+                toast.info("Moved to passed");
               } else if (dragSource === 'shortlisted') {
                 setSwipeState(prev => ({
                   ...prev,
@@ -712,7 +805,11 @@ const CoachSwipe = () => {
         </div>
 
         {/* Liked Panel - Right */}
-        <div className="flex-1 max-w-md pointer-events-auto">
+        <div 
+          className={`flex-1 max-w-md pointer-events-auto transition-all ${
+            draggedCoach && dragSource !== 'liked' ? 'ring-2 ring-vibrantOrange/50 ring-offset-2 ring-offset-charcoal' : ''
+          }`}
+        >
           <CoachChipPanel 
             title="Liked"
             coaches={swipeState.liked}
@@ -729,6 +826,7 @@ const CoachSwipe = () => {
                 ...prev,
                 liked: prev.liked.filter(c => c.id !== id)
               }));
+              toast.success("Removed from liked list");
             }}
             onViewProfile={(coach) => {
               const fullCoach = mockCoaches.find(c => c.id === coach.id);
@@ -745,12 +843,14 @@ const CoachSwipe = () => {
                   passed: prev.passed.filter(c => c.id !== coach.id),
                   liked: [...prev.liked.filter(c => c.id !== coach.id), coach]
                 }));
+                toast.success("Moved to liked");
               } else if (dragSource === 'shortlisted') {
                 setSwipeState(prev => ({
                   ...prev,
                   shortlisted: prev.shortlisted.filter(c => c.id !== coach.id),
                   liked: [...prev.liked.filter(c => c.id !== coach.id), coach]
                 }));
+                toast.info("Removed from shortlist, added to liked");
               }
             }}
             draggedCoach={draggedCoach}
@@ -791,7 +891,9 @@ const CoachSwipe = () => {
       <Sheet open={showShortlistDrawer} onOpenChange={setShowShortlistDrawer}>
         <SheetContent 
           side="right" 
-          className="w-full sm:max-w-lg bg-charcoal border-l-2 border-vibrantOrange/30 overflow-y-auto"
+          className={`w-full sm:max-w-lg bg-charcoal border-l-2 border-vibrantOrange/30 overflow-y-auto transition-all ${
+            draggedCoach && dragSource !== 'shortlisted' ? 'ring-2 ring-vibrantOrange ring-inset' : ''
+          }`}
           onDragOver={(e) => {
             e.preventDefault();
             e.stopPropagation();
