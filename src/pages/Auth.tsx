@@ -43,11 +43,26 @@ const Auth = () => {
           .select("role")
           .eq("user_id", data.user.id);
 
-        const hasCoachRole = rolesData?.some((r) => r.role === "coach");
+        const userRoles = rolesData?.map((r) => r.role) || [];
+        const hasSelectedRole = userRoles.includes(userType);
+        
+        // Store the selected role preference
+        if (hasSelectedRole) {
+          localStorage.setItem("currentRole", userType);
+        } else {
+          // Fall back to first available role
+          const firstRole = userRoles[0] || "athlete";
+          localStorage.setItem("currentRole", firstRole);
+        }
         
         toast.success("Login successful!");
         
-        if (hasCoachRole) {
+        // Route based on selected role if user has it, otherwise use first available
+        if (hasSelectedRole && userType === "coach") {
+          navigate("/coach/home");
+        } else if (hasSelectedRole && userType === "athlete") {
+          navigate("/dashboard");
+        } else if (userRoles.includes("coach")) {
           navigate("/coach/home");
         } else {
           navigate("/dashboard");
