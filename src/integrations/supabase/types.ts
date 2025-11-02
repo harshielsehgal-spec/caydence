@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      coach_analytics: {
+        Row: {
+          avg_form_score: number | null
+          bookings_count: number
+          coach_id: string
+          created_at: string
+          id: string
+          masterclass_views: number
+          revenue_inr: number
+          sport: string
+          week_start: string
+        }
+        Insert: {
+          avg_form_score?: number | null
+          bookings_count?: number
+          coach_id: string
+          created_at?: string
+          id?: string
+          masterclass_views?: number
+          revenue_inr?: number
+          sport: string
+          week_start: string
+        }
+        Update: {
+          avg_form_score?: number | null
+          bookings_count?: number
+          coach_id?: string
+          created_at?: string
+          id?: string
+          masterclass_views?: number
+          revenue_inr?: number
+          sport?: string
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_analytics_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coach_availability: {
         Row: {
           coach_id: string
@@ -108,6 +152,112 @@ export type Database = {
           years_experience?: number | null
         }
         Relationships: []
+      }
+      masterclass_enrollments: {
+        Row: {
+          athlete_id: string
+          enrolled_at: string
+          id: string
+          masterclass_id: string
+          payment_amount: number
+          payment_status: string
+        }
+        Insert: {
+          athlete_id: string
+          enrolled_at?: string
+          id?: string
+          masterclass_id: string
+          payment_amount?: number
+          payment_status?: string
+        }
+        Update: {
+          athlete_id?: string
+          enrolled_at?: string
+          id?: string
+          masterclass_id?: string
+          payment_amount?: number
+          payment_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "masterclass_enrollments_masterclass_id_fkey"
+            columns: ["masterclass_id"]
+            isOneToOne: false
+            referencedRelation: "masterclasses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      masterclasses: {
+        Row: {
+          coach_id: string
+          created_at: string
+          description: string | null
+          duration_min: number
+          enrolled_count: number
+          id: string
+          mode: string
+          price_inr: number
+          rating: number | null
+          scheduled_at: string | null
+          seats: number
+          sport: string
+          status: string
+          tags: string[] | null
+          title: string
+          trailer_url: string | null
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          coach_id: string
+          created_at?: string
+          description?: string | null
+          duration_min?: number
+          enrolled_count?: number
+          id?: string
+          mode: string
+          price_inr?: number
+          rating?: number | null
+          scheduled_at?: string | null
+          seats?: number
+          sport: string
+          status?: string
+          tags?: string[] | null
+          title: string
+          trailer_url?: string | null
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          coach_id?: string
+          created_at?: string
+          description?: string | null
+          duration_min?: number
+          enrolled_count?: number
+          id?: string
+          mode?: string
+          price_inr?: number
+          rating?: number | null
+          scheduled_at?: string | null
+          seats?: number
+          sport?: string
+          status?: string
+          tags?: string[] | null
+          title?: string
+          trailer_url?: string | null
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "masterclasses_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       offers: {
         Row: {
@@ -257,6 +407,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_coach_leaderboard: {
+        Args: { sport_filter?: string }
+        Returns: {
+          avg_rating: number
+          coach_id: string
+          coach_name: string
+          coach_photo_url: string
+          masterclass_views: number
+          rank: number
+          score: number
+          sport: string
+          total_bookings: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
