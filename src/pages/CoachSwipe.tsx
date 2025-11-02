@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Card, CardContent } from "@/components/ui/card";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import SwipeCard from "@/components/SwipeCard";
-import { ArrowLeft, SlidersHorizontal, Heart, X, Eye, Star, MapPin, Video, Users, CheckCircle } from "lucide-react";
+import CoachChipPanel from "@/components/CoachChipPanel";
+import { ArrowLeft, SlidersHorizontal, Heart, X, Eye, Star, MapPin, Video, Users, CheckCircle, Bookmark, MessageSquare, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 // Mock coach data - Seeded dataset
@@ -161,6 +165,23 @@ const mockCoaches = [
   },
 ];
 
+type CoachSimple = {
+  id: number;
+  name: string;
+  city: string;
+  rating: number;
+  image: string;
+  sport: string;
+  price: number;
+  mode: string;
+};
+
+type SwipeState = {
+  liked: CoachSimple[];
+  passed: CoachSimple[];
+  shortlisted: CoachSimple[];
+};
+
 const CoachSwipe = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -172,6 +193,17 @@ const CoachSwipe = () => {
   const [filterCity, setFilterCity] = useState<string>("all");
   const [filterMaxFee, setFilterMaxFee] = useState<boolean>(false);
   const [showFilters, setShowFilters] = useState(false);
+
+  // Swipe state with localStorage persistence
+  const [swipeState, setSwipeState] = useState<SwipeState>(() => {
+    const saved = localStorage.getItem('cadenceSwipeState');
+    return saved ? JSON.parse(saved) : { liked: [], passed: [], shortlisted: [] };
+  });
+  
+  const [draggedCoach, setDraggedCoach] = useState<CoachSimple | null>(null);
+  const [dragSource, setDragSource] = useState<'liked' | 'passed' | 'shortlisted' | null>(null);
+  const [showShortlistDrawer, setShowShortlistDrawer] = useState(false);
+  const [activeTab, setActiveTab] = useState<'liked' | 'passed'>('liked');
 
   // Apply filters and sorting
   const getFilteredAndSortedCoaches = () => {
@@ -222,10 +254,15 @@ const CoachSwipe = () => {
 
   const [coaches, setCoaches] = useState(getFilteredAndSortedCoaches());
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [shortlistedIds, setShortlistedIds] = useState<number[]>([]);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showActionModal, setShowActionModal] = useState(false);
   const [selectedCoachForAction, setSelectedCoachForAction] = useState<typeof currentCoach | null>(null);
+  const [previewCoach, setPreviewCoach] = useState<CoachSimple | null>(null);
+
+  // Persist swipe state to localStorage
+  useEffect(() => {
+    localStorage.setItem('cadenceSwipeState', JSON.stringify(swipeState));
+  }, [swipeState]);
 
   // Re-filter when filters change
   React.useEffect(() => {
@@ -253,6 +290,22 @@ const CoachSwipe = () => {
   };
 
   const handleSwipeLeft = () => {
+    if (currentCoach) {
+      const simple: CoachSimple = {
+        id: currentCoach.id,
+        name: currentCoach.name,
+        city: currentCoach.city,
+        rating: currentCoach.rating,
+        image: currentCoach.image,
+        sport: currentCoach.sport,
+        price: currentCoach.price,
+        mode: currentCoach.mode,
+      };
+      setSwipeState(prev => ({
+        ...prev,
+        passed: [...prev.passed.filter(c => c.id !== simple.id), simple]
+      }));
+    }
     if (currentIndex < coaches.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
@@ -262,7 +315,20 @@ const CoachSwipe = () => {
 
   const handleSwipeRight = () => {
     if (currentCoach) {
-      setShortlistedIds([...shortlistedIds, currentCoach.id]);
+      const simple: CoachSimple = {
+        id: currentCoach.id,
+        name: currentCoach.name,
+        city: currentCoach.city,
+        rating: currentCoach.rating,
+        image: currentCoach.image,
+        sport: currentCoach.sport,
+        price: currentCoach.price,
+        mode: currentCoach.mode,
+      };
+      setSwipeState(prev => ({
+        ...prev,
+        liked: [...prev.liked.filter(c => c.id !== simple.id), simple]
+      }));
       setSelectedCoachForAction(currentCoach);
       setShowActionModal(true);
     }
@@ -325,9 +391,9 @@ const CoachSwipe = () => {
             >
               Back to Search
             </Button>
-            {shortlistedIds.length > 0 && (
-              <Button onClick={() => navigate("/marketplace")} variant="ghost">
-                View Shortlist ({shortlistedIds.length})
+            {swipeState.shortlisted.length > 0 && (
+              <Button onClick={() => setShowShortlistDrawer(true)} variant="ghost">
+                View Shortlist ({swipeState.shortlisted.length})
               </Button>
             )}
           </div>
@@ -370,14 +436,32 @@ const CoachSwipe = () => {
             </p>
           </div>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowFilters(!showFilters)}
-            className="text-vibrantOrange hover:bg-vibrantOrange/10 hover:shadow-orange-glow transition-smooth"
-          >
-            <SlidersHorizontal className="h-5 w-5" />
-          </Button>
+          <div className="flex gap-2">
+            <Sheet open={showShortlistDrawer} onOpenChange={setShowShortlistDrawer}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-vibrantOrange hover:bg-vibrantOrange/10 hover:shadow-orange-glow transition-smooth relative"
+                >
+                  <Bookmark className="h-5 w-5" />
+                  {swipeState.shortlisted.length > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-vibrantOrange text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                      {swipeState.shortlisted.length}
+                    </span>
+                  )}
+                </Button>
+              </SheetTrigger>
+            </Sheet>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowFilters(!showFilters)}
+              className="text-vibrantOrange hover:bg-vibrantOrange/10 hover:shadow-orange-glow transition-smooth"
+            >
+              <SlidersHorizontal className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
 
         {/* Filters Panel */}
@@ -522,6 +606,158 @@ const CoachSwipe = () => {
         ))}
       </div>
 
+      {/* Mobile Tabs - Show on small screens */}
+      <div className="md:hidden fixed bottom-[120px] left-0 right-0 z-10 px-4">
+        <div className="flex gap-2 bg-charcoal/95 backdrop-blur-md rounded-full p-1 border-2 border-vibrantOrange/20">
+          <button
+            onClick={() => setActiveTab('liked')}
+            className={`flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-smooth ${
+              activeTab === 'liked'
+                ? 'bg-vibrantOrange text-white shadow-orange-glow'
+                : 'text-coolGray hover:text-white'
+            }`}
+          >
+            Liked {swipeState.liked.length > 0 && `(${swipeState.liked.length})`}
+          </button>
+          <button
+            onClick={() => setActiveTab('passed')}
+            className={`flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-smooth ${
+              activeTab === 'passed'
+                ? 'bg-vibrantOrange text-white shadow-orange-glow'
+                : 'text-coolGray hover:text-white'
+            }`}
+          >
+            Passed {swipeState.passed.length > 0 && `(${swipeState.passed.length})`}
+          </button>
+        </div>
+        {/* Mobile Chip List */}
+        {activeTab && (
+          <div className="mt-2 bg-charcoal/95 backdrop-blur-md rounded-2xl p-3 border-2 border-vibrantOrange/20 max-h-32 overflow-x-auto">
+            <div className="flex gap-2 pb-1">
+              {(activeTab === 'liked' ? swipeState.liked : swipeState.passed).length === 0 ? (
+                <p className="text-sm text-coolGray py-2 px-3">No coaches yet</p>
+              ) : (
+                (activeTab === 'liked' ? swipeState.liked : swipeState.passed).map((coach) => (
+                  <div
+                    key={coach.id}
+                    className="flex-shrink-0 bg-charcoal/80 border-2 border-white/10 rounded-xl p-2 min-w-[100px]"
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      <img
+                        src={coach.image}
+                        alt={coach.name}
+                        className="w-10 h-10 rounded-full object-cover border-2 border-vibrantOrange/30"
+                      />
+                      <p className="text-xs font-semibold text-white truncate w-full text-center">{coach.name}</p>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                        <span className="text-xs text-white">{coach.rating}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Bottom Panels - Hidden on mobile */}
+      <div className="hidden md:flex fixed bottom-[120px] left-0 right-0 z-10 justify-between px-4 pointer-events-none">
+        {/* Passed Panel - Left */}
+        <div className="flex-1 max-w-md pointer-events-auto">
+          <CoachChipPanel 
+            title="Passed"
+            coaches={swipeState.passed}
+            onDragStart={(coach) => {
+              setDraggedCoach(coach);
+              setDragSource('passed');
+            }}
+            onDragEnd={() => {
+              setDraggedCoach(null);
+              setDragSource(null);
+            }}
+            onRemove={(id) => {
+              setSwipeState(prev => ({
+                ...prev,
+                passed: prev.passed.filter(c => c.id !== id)
+              }));
+            }}
+            onViewProfile={(coach) => {
+              const fullCoach = mockCoaches.find(c => c.id === coach.id);
+              if (fullCoach) {
+                setSelectedCoachForAction(fullCoach);
+                setShowProfileModal(true);
+              }
+            }}
+            badgeColor="bg-destructive/20 text-destructive border-destructive/40"
+            onDrop={(coach) => {
+              if (dragSource === 'liked') {
+                setSwipeState(prev => ({
+                  ...prev,
+                  liked: prev.liked.filter(c => c.id !== coach.id),
+                  passed: [...prev.passed.filter(c => c.id !== coach.id), coach]
+                }));
+              } else if (dragSource === 'shortlisted') {
+                setSwipeState(prev => ({
+                  ...prev,
+                  shortlisted: prev.shortlisted.filter(c => c.id !== coach.id),
+                  passed: [...prev.passed.filter(c => c.id !== coach.id), coach]
+                }));
+                toast.info("Removed from shortlist");
+              }
+            }}
+            draggedCoach={draggedCoach}
+          />
+        </div>
+
+        {/* Liked Panel - Right */}
+        <div className="flex-1 max-w-md pointer-events-auto">
+          <CoachChipPanel 
+            title="Liked"
+            coaches={swipeState.liked}
+            onDragStart={(coach) => {
+              setDraggedCoach(coach);
+              setDragSource('liked');
+            }}
+            onDragEnd={() => {
+              setDraggedCoach(null);
+              setDragSource(null);
+            }}
+            onRemove={(id) => {
+              setSwipeState(prev => ({
+                ...prev,
+                liked: prev.liked.filter(c => c.id !== id)
+              }));
+            }}
+            onViewProfile={(coach) => {
+              const fullCoach = mockCoaches.find(c => c.id === coach.id);
+              if (fullCoach) {
+                setSelectedCoachForAction(fullCoach);
+                setShowProfileModal(true);
+              }
+            }}
+            badgeColor="bg-vibrantOrange/20 text-vibrantOrange border-vibrantOrange/40"
+            onDrop={(coach) => {
+              if (dragSource === 'passed') {
+                setSwipeState(prev => ({
+                  ...prev,
+                  passed: prev.passed.filter(c => c.id !== coach.id),
+                  liked: [...prev.liked.filter(c => c.id !== coach.id), coach]
+                }));
+              } else if (dragSource === 'shortlisted') {
+                setSwipeState(prev => ({
+                  ...prev,
+                  shortlisted: prev.shortlisted.filter(c => c.id !== coach.id),
+                  liked: [...prev.liked.filter(c => c.id !== coach.id), coach]
+                }));
+              }
+            }}
+            draggedCoach={draggedCoach}
+          />
+        </div>
+      </div>
+
       {/* Action Buttons */}
       <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-charcoal via-charcoal/95 to-transparent pb-8 pt-8 z-10">
         <div className="flex items-center justify-center gap-8">
@@ -550,6 +786,128 @@ const CoachSwipe = () => {
           Swipe right to like • Tap to view profile • Swipe left to skip
         </p>
       </div>
+
+      {/* Shortlist Drawer */}
+      <Sheet open={showShortlistDrawer} onOpenChange={setShowShortlistDrawer}>
+        <SheetContent 
+          side="right" 
+          className="w-full sm:max-w-lg bg-charcoal border-l-2 border-vibrantOrange/30 overflow-y-auto"
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            if (draggedCoach && (dragSource === 'liked' || dragSource === 'passed')) {
+              setSwipeState(prev => ({
+                ...prev,
+                [dragSource]: prev[dragSource].filter(c => c.id !== draggedCoach.id),
+                shortlisted: [...prev.shortlisted.filter(c => c.id !== draggedCoach.id), draggedCoach]
+              }));
+              toast.success("Added to shortlist!");
+            }
+          }}
+        >
+          <SheetHeader>
+            <SheetTitle className="text-2xl font-heading text-white flex items-center gap-2">
+              <Bookmark className="h-6 w-6 text-vibrantOrange" />
+              Shortlisted Coaches
+              <Badge className="ml-auto bg-vibrantOrange text-white">
+                {swipeState.shortlisted.length}
+              </Badge>
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-6 space-y-4">
+            {swipeState.shortlisted.length === 0 ? (
+              <div className="text-center py-12">
+                <Bookmark className="h-16 w-16 mx-auto text-vibrantOrange/30 mb-4" />
+                <p className="text-coolGray font-body">No coaches shortlisted yet</p>
+                <p className="text-sm text-coolGray/70 mt-2">Drag liked coaches here to shortlist</p>
+              </div>
+            ) : (
+              swipeState.shortlisted.map((coach) => (
+                <Card 
+                  key={coach.id}
+                  className="bg-charcoal/60 border-2 border-vibrantOrange/30 hover:border-vibrantOrange transition-smooth"
+                  draggable
+                  onDragStart={() => {
+                    setDraggedCoach(coach);
+                    setDragSource('shortlisted');
+                  }}
+                  onDragEnd={() => {
+                    setDraggedCoach(null);
+                    setDragSource(null);
+                  }}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <img
+                        src={coach.image}
+                        alt={coach.name}
+                        className="w-16 h-16 rounded-full object-cover border-2 border-vibrantOrange/50"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-white truncate">{coach.name}</h3>
+                        <div className="flex items-center gap-2 text-sm text-coolGray mt-1">
+                          <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                          <span>{coach.rating}</span>
+                          <span>•</span>
+                          <MapPin className="h-3 w-3" />
+                          <span>{coach.city}</span>
+                        </div>
+                        <div className="text-vibrantOrange font-semibold mt-1">
+                          ₹{coach.price}/session
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 mt-4">
+                      <Button
+                        onClick={() => {
+                          const fullCoach = mockCoaches.find(c => c.id === coach.id);
+                          if (fullCoach) {
+                            navigate("/session-booking", { state: { coach: fullCoach } });
+                          }
+                        }}
+                        className="flex-1 bg-vibrantOrange hover:bg-vibrantOrange/90 text-white"
+                        size="sm"
+                      >
+                        Book
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-vibrantOrange/50 text-white hover:bg-vibrantOrange/10"
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSwipeState(prev => ({
+                            ...prev,
+                            shortlisted: prev.shortlisted.filter(c => c.id !== coach.id)
+                          }));
+                        }}
+                        className="border-destructive/50 text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+          {swipeState.shortlisted.length > 0 && (
+            <div className="mt-6 p-4 bg-vibrantOrange/10 border border-vibrantOrange/30 rounded-lg">
+              <p className="text-sm text-coolGray">
+                💡 <span className="font-semibold">Tip:</span> Drag coaches to "Passed" to remove from shortlist
+              </p>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
 
       {/* Profile Modal */}
       <Dialog open={showProfileModal} onOpenChange={setShowProfileModal}>
