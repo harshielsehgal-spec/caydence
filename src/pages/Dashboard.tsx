@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Award, Clock, Calendar, BarChart3, User, Camera, Video } from "lucide-react";
+import { TrendingUp, Award, Clock, Calendar, BarChart3, User, Camera, Video, Activity } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -221,12 +221,21 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-4 gap-4">
           <Button
             onClick={() => navigate("/video-upload")}
             className="h-20 text-lg font-poppins"
           >
+            <Video className="mr-2 h-5 w-5" />
             New Analysis
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate("/athlete/skill-map")}
+            className="h-20 text-lg font-poppins"
+          >
+            <Activity className="mr-2 h-5 w-5" />
+            Skill Map
           </Button>
           <Button
             variant="outline"
