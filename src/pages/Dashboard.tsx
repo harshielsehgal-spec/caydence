@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Award, Clock, Calendar, BarChart3, User, Camera, Video, Activity } from "lucide-react";
+import { TrendingUp, Award, Clock, Calendar, BarChart3, User, Camera, Video, Activity, Trophy } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -239,17 +239,18 @@ const Dashboard = () => {
           </Button>
           <Button
             variant="outline"
+            onClick={() => navigate("/athlete/challenges")}
+            className="h-20 text-lg font-poppins"
+          >
+            <Trophy className="mr-2 h-5 w-5" />
+            Join a Challenge
+          </Button>
+          <Button
+            variant="outline"
             onClick={() => navigate("/coach-swipe")}
             className="h-20 text-lg font-poppins"
           >
             Find Coaches
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => navigate("/ai-insights")}
-            className="h-20 text-lg font-poppins"
-          >
-            Learn More
           </Button>
         </div>
       </div>

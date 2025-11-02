@@ -28,6 +28,7 @@ import CoachAnalytics from "./pages/CoachAnalytics";
 import CoachMessages from "./pages/CoachMessages";
 import AthleteSkillMap from "./pages/AthleteSkillMap";
 import AthletePlaylists from "./pages/AthletePlaylists";
+import AthleteChallenges from "./pages/AthleteChallenges";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -68,6 +69,7 @@ const App = () => (
           {/* Athlete Routes */}
           <Route path="/athlete/skill-map" element={<AthleteSkillMap />} />
           <Route path="/athlete/playlists" element={<AthletePlaylists />} />
+          <Route path="/athlete/challenges" element={<AthleteChallenges />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
