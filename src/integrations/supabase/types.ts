@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      coach_availability: {
+        Row: {
+          coach_id: string
+          created_at: string
+          end_time: string
+          id: string
+          start_time: string
+          updated_at: string
+          weekday: number
+        }
+        Insert: {
+          coach_id: string
+          created_at?: string
+          end_time: string
+          id?: string
+          start_time: string
+          updated_at?: string
+          weekday: number
+        }
+        Update: {
+          coach_id?: string
+          created_at?: string
+          end_time?: string
+          id?: string
+          start_time?: string
+          updated_at?: string
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_availability_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coaches: {
         Row: {
           bio: string | null
@@ -70,6 +108,128 @@ export type Database = {
           years_experience?: number | null
         }
         Relationships: []
+      }
+      offers: {
+        Row: {
+          attachments: string[] | null
+          coach_id: string
+          created_at: string
+          description: string | null
+          duration_min: number
+          id: string
+          includes_ai_check: boolean
+          level: string
+          mode: string[]
+          price_inr: number
+          slots_per_week: number
+          sport: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          attachments?: string[] | null
+          coach_id: string
+          created_at?: string
+          description?: string | null
+          duration_min?: number
+          id?: string
+          includes_ai_check?: boolean
+          level: string
+          mode?: string[]
+          price_inr?: number
+          slots_per_week?: number
+          sport: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          attachments?: string[] | null
+          coach_id?: string
+          created_at?: string
+          description?: string | null
+          duration_min?: number
+          id?: string
+          includes_ai_check?: boolean
+          level?: string
+          mode?: string[]
+          price_inr?: number
+          slots_per_week?: number
+          sport?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sessions: {
+        Row: {
+          athlete_id: string
+          athlete_notes: string | null
+          coach_decline_reason: string | null
+          coach_id: string
+          created_at: string
+          end_time: string
+          id: string
+          mode: string
+          offer_id: string
+          start_time: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          athlete_id: string
+          athlete_notes?: string | null
+          coach_decline_reason?: string | null
+          coach_id: string
+          created_at?: string
+          end_time: string
+          id?: string
+          mode: string
+          offer_id: string
+          start_time: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          athlete_id?: string
+          athlete_notes?: string | null
+          coach_decline_reason?: string | null
+          coach_id?: string
+          created_at?: string
+          end_time?: string
+          id?: string
+          mode?: string
+          offer_id?: string
+          start_time?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coaches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sessions_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

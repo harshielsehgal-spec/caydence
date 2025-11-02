@@ -20,6 +20,8 @@ import SessionBooking from "./pages/SessionBooking";
 import CoachOnboarding from "./pages/CoachOnboarding";
 import CoachHome from "./pages/CoachHome";
 import CoachOffers from "./pages/CoachOffers";
+import CoachCalendar from "./pages/CoachCalendar";
+import CoachSessions from "./pages/CoachSessions";
 import CoachMessages from "./pages/CoachMessages";
 import NotFound from "./pages/NotFound";
 
@@ -51,6 +53,8 @@ const App = () => (
           <Route path="/coach/onboarding" element={<CoachOnboarding />} />
           <Route path="/coach/home" element={<CoachHome />} />
           <Route path="/coach/offers" element={<CoachOffers />} />
+          <Route path="/coach/calendar" element={<CoachCalendar />} />
+          <Route path="/coach/sessions" element={<CoachSessions />} />
           <Route path="/coach/messages" element={<CoachMessages />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

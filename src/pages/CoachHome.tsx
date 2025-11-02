@@ -98,13 +98,13 @@ const CoachHome = () => {
     { 
       label: "Set Availability", 
       icon: Clock, 
-      onClick: () => toast.info("Calendar feature coming soon!"),
+      onClick: () => navigate("/coach/calendar"),
       variant: "outline" as const
     },
     { 
-      label: "Messages", 
+      label: "View Sessions", 
       icon: MessageSquare, 
-      onClick: () => navigate("/coach/messages"),
+      onClick: () => navigate("/coach/sessions"),
       variant: "outline" as const
     },
   ];
