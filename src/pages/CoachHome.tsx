@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
   Users, Calendar, Star, DollarSign, 
-  Plus, Clock, MessageSquare, ArrowLeft 
+  Plus, Clock, MessageSquare, ArrowLeft, TrendingUp, Video 
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -107,6 +107,24 @@ const CoachHome = () => {
       onClick: () => navigate("/coach/sessions"),
       variant: "outline" as const
     },
+    { 
+      label: "Masterclasses", 
+      icon: Video, 
+      onClick: () => navigate("/coach/masterclasses"),
+      variant: "outline" as const
+    },
+    { 
+      label: "Leaderboard", 
+      icon: TrendingUp, 
+      onClick: () => navigate("/coach/leaderboard"),
+      variant: "outline" as const
+    },
+    { 
+      label: "Analytics", 
+      icon: TrendingUp, 
+      onClick: () => navigate("/coach/analytics"),
+      variant: "outline" as const
+    },
   ];
 
   const recentActivity = [
@@ -170,7 +188,7 @@ const CoachHome = () => {
             <CardTitle className="text-white font-heading">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               {quickActions.map((action, index) => (
                 <Button
                   key={index}
