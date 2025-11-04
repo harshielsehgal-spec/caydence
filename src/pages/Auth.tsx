@@ -37,6 +37,12 @@ const Auth = () => {
 
         if (error) throw error;
 
+        // Clear any old user-specific data from localStorage
+        const oldKeys = Object.keys(localStorage).filter(key => 
+          key.includes('cadenceSwipeState_') && !key.includes(data.user.id)
+        );
+        oldKeys.forEach(key => localStorage.removeItem(key));
+
         // Fetch user's roles to determine navigation
         const { data: rolesData } = await supabase
           .from("user_roles")

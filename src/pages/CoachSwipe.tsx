@@ -11,6 +11,7 @@ import SwipeCard from "@/components/SwipeCard";
 import CoachChipPanel from "@/components/CoachChipPanel";
 import { ArrowLeft, SlidersHorizontal, Heart, X, Eye, Star, MapPin, Video, Users, CheckCircle, Bookmark, MessageSquare, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 // Mock coach data - Seeded dataset
 const mockCoaches = [
@@ -211,6 +212,18 @@ const CoachSwipe = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const selectedSport = location.state?.sport || "All Sports";
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Get current user ID and scope storage to user
+  useEffect(() => {
+    const getUserId = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id || null);
+    };
+    getUserId();
+  }, []);
+
+  const getStorageKey = (key: string) => userId ? `${key}_${userId}` : key;
 
   // Filter and Sort State with sessionStorage persistence
   const [sortBy, setSortBy] = useState<string>(() => {
@@ -232,11 +245,8 @@ const CoachSwipe = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Swipe state with localStorage persistence
-  const [swipeState, setSwipeState] = useState<SwipeState>(() => {
-    const saved = localStorage.getItem('cadenceSwipeState');
-    return saved ? JSON.parse(saved) : { liked: [], passed: [], shortlisted: [] };
-  });
+  // Swipe state with localStorage persistence (user-scoped)
+  const [swipeState, setSwipeState] = useState<SwipeState>({ liked: [], passed: [], shortlisted: [] });
   
   const [draggedCoach, setDraggedCoach] = useState<CoachSimple | null>(null);
   const [dragSource, setDragSource] = useState<'liked' | 'passed' | 'shortlisted' | null>(null);
@@ -308,6 +318,16 @@ const CoachSwipe = () => {
   const [previewCoach, setPreviewCoach] = useState<CoachSimple | null>(null);
   const [showRecommendedFallback, setShowRecommendedFallback] = useState(false);
 
+  // Load user-scoped swipe state
+  useEffect(() => {
+    if (userId) {
+      const saved = localStorage.getItem(getStorageKey('cadenceSwipeState'));
+      if (saved) {
+        setSwipeState(JSON.parse(saved));
+      }
+    }
+  }, [userId]);
+
   // Clear filters on mount if coming from dashboard
   useEffect(() => {
     const fromDashboard = sessionStorage.getItem('fromDashboard');
@@ -317,10 +337,12 @@ const CoachSwipe = () => {
     }
   }, []);
 
-  // Persist swipe state to localStorage
+  // Persist swipe state to localStorage (user-scoped)
   useEffect(() => {
-    localStorage.setItem('cadenceSwipeState', JSON.stringify(swipeState));
-  }, [swipeState]);
+    if (userId) {
+      localStorage.setItem(getStorageKey('cadenceSwipeState'), JSON.stringify(swipeState));
+    }
+  }, [swipeState, userId]);
 
   // Persist filters to sessionStorage
   useEffect(() => {
