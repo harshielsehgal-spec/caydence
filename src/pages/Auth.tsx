@@ -68,30 +68,80 @@ const Auth = () => {
           navigate("/dashboard");
         }
       } else {
-        const { data, error } = await supabase.auth.signUp({
+        // Check if email already exists
+        const { data: existingUser } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-          },
         });
 
-        if (error) throw error;
-        if (!data.user) throw new Error("Signup failed");
+        if (existingUser?.user) {
+          // User exists - check if they already have this role
+          const { data: rolesData } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", existingUser.user.id);
 
-        // Insert the selected role
-        const { error: roleError } = await supabase
-          .from("user_roles")
-          .insert({ user_id: data.user.id, role: userType });
+          const userRoles = rolesData?.map((r) => r.role) || [];
+          
+          if (userRoles.includes(userType)) {
+            toast.error(`You already have a ${userType} account with this email.`);
+            setLoading(false);
+            return;
+          }
 
-        if (roleError) throw roleError;
+          // Show confirmation modal
+          const addRole = window.confirm(
+            `Add ${userType === "coach" ? "Coach" : "Athlete"} Role to your account?\n\nYou'll keep your existing data and also get a ${userType} dashboard.`
+          );
 
-        toast.success("Account created successfully!");
-        
-        if (userType === "athlete") {
-          navigate("/sport-selection");
+          if (!addRole) {
+            setLoading(false);
+            return;
+          }
+
+          // Add new role
+          const { error: roleError } = await supabase
+            .from("user_roles")
+            .insert({ user_id: existingUser.user.id, role: userType });
+
+          if (roleError) throw roleError;
+
+          localStorage.setItem("currentRole", userType);
+          toast.success(`${userType === "coach" ? "Coach" : "Athlete"} role added successfully!`);
+          
+          if (userType === "athlete") {
+            navigate("/sport-selection");
+          } else {
+            navigate("/coach/onboarding");
+          }
         } else {
-          navigate("/coach/onboarding");
+          // New user signup
+          const { data, error } = await supabase.auth.signUp({
+            email: formData.email,
+            password: formData.password,
+            options: {
+              emailRedirectTo: `${window.location.origin}/`,
+            },
+          });
+
+          if (error) throw error;
+          if (!data.user) throw new Error("Signup failed");
+
+          // Insert the selected role
+          const { error: roleError } = await supabase
+            .from("user_roles")
+            .insert({ user_id: data.user.id, role: userType });
+
+          if (roleError) throw roleError;
+
+          localStorage.setItem("currentRole", userType);
+          toast.success("Account created successfully!");
+          
+          if (userType === "athlete") {
+            navigate("/sport-selection");
+          } else {
+            navigate("/coach/onboarding");
+          }
         }
       }
     } catch (error: any) {

@@ -4,9 +4,29 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Award, Clock, Calendar, BarChart3, User, Camera, Video, Activity, Trophy } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useUserRole } from "@/hooks/useUserRole";
+import { RoleSwitch } from "@/components/RoleSwitch";
+import { TryAnalysisWidget } from "@/components/TryAnalysisWidget";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+  const { roles, currentRole, switchRole } = useUserRole(user);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+  }, []);
+
+  const handleRoleSwitch = (role: "athlete" | "coach") => {
+    switchRole(role);
+    if (role === "coach") {
+      navigate("/coach/home");
+    }
+  };
 
   const weeklyData = [
     { day: "Mon", value: 82 },
@@ -44,14 +64,21 @@ const Dashboard = () => {
             </Button>
             <h1 className="text-xl font-bold font-poppins">My Dashboard</h1>
           </div>
-          <Button
-            variant="outline"
-            onClick={() => navigate("/profile")}
-            className="font-poppins"
-          >
-            <User className="mr-2 h-4 w-4" />
-            Profile
-          </Button>
+          <div className="flex items-center gap-3">
+            <RoleSwitch 
+              roles={roles} 
+              currentRole={currentRole} 
+              onSwitch={handleRoleSwitch}
+            />
+            <Button
+              variant="outline"
+              onClick={() => navigate("/profile")}
+              className="font-poppins"
+            >
+              <User className="mr-2 h-4 w-4" />
+              Profile
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -67,6 +94,8 @@ const Dashboard = () => {
         </div>
 
         {/* AI Analysis CTA */}
+        <TryAnalysisWidget userRole="athlete" />
+
         <Card className="mb-6 shadow-card-hover bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">

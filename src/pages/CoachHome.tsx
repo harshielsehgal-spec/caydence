@@ -2,22 +2,29 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { 
   Users, Calendar, Star, DollarSign, 
   Plus, Clock, MessageSquare, ArrowLeft, TrendingUp, Video 
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useUserRole } from "@/hooks/useUserRole";
+import { RoleSwitch } from "@/components/RoleSwitch";
+import { TryAnalysisWidget } from "@/components/TryAnalysisWidget";
 
 const CoachHome = () => {
   const navigate = useNavigate();
   const [coachData, setCoachData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const { roles, currentRole, switchRole } = useUserRole(user);
 
   useEffect(() => {
     const fetchCoachData = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
         if (!user) {
           navigate("/auth");
           return;
@@ -48,6 +55,13 @@ const CoachHome = () => {
 
     fetchCoachData();
   }, [navigate]);
+
+  const handleRoleSwitch = (role: "athlete" | "coach") => {
+    switchRole(role);
+    if (role === "athlete") {
+      navigate("/dashboard");
+    }
+  };
 
   if (loading) {
     return (
@@ -153,13 +167,23 @@ const CoachHome = () => {
             </h1>
             <p className="text-coolGray mt-2">Here's what's happening with your coaching business</p>
           </div>
-          {coachData?.verified && (
-            <div className="flex items-center gap-2 px-4 py-2 bg-vibrantOrange/20 border border-vibrantOrange rounded-full">
-              <div className="h-2 w-2 bg-vibrantOrange rounded-full animate-pulse" />
-              <span className="text-white text-sm font-medium">Verified Coach</span>
-            </div>
-          )}
+          <div className="flex items-center gap-4">
+            {coachData?.verified && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-vibrantOrange/20 border border-vibrantOrange rounded-full">
+                <div className="h-2 w-2 bg-vibrantOrange rounded-full animate-pulse" />
+                <span className="text-white text-sm font-medium">Verified Coach</span>
+              </div>
+            )}
+            <RoleSwitch 
+              roles={roles} 
+              currentRole={currentRole} 
+              onSwitch={handleRoleSwitch}
+            />
+          </div>
         </div>
+
+        {/* Try Analysis Widget */}
+        <TryAnalysisWidget userRole="coach" />
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
