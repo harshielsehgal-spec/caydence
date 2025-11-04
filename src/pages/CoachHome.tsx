@@ -202,6 +202,64 @@ const CoachHome = () => {
         {/* AI Co-Pilot */}
         <CoachAICoPilot />
 
+        {/* Recent Combined Reports */}
+        <Card className="bg-charcoal/80 border-vibrantOrange/30 mb-8">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-white font-heading">Recent Combined Reports</CardTitle>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate("/coach/analytics?tab=reports")}
+              >
+                View All
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-3 gap-4">
+              {[
+                { athlete: "Riya Patel", sport: "Football", date: "2024-03-15", posture: "+6", balance: "-4", cadence: "+8" },
+                { athlete: "Aditya Mehra", sport: "Cricket", date: "2024-03-14", posture: "+12", balance: "+8", cadence: "+5" },
+                { athlete: "Priya Singh", sport: "Football", date: "2024-03-13", posture: "-2", balance: "+3", cadence: "-6" }
+              ].map((report, index) => (
+                <div 
+                  key={index}
+                  className="p-4 bg-charcoal/40 border border-border rounded-lg hover:border-vibrantOrange/50 transition-smooth cursor-pointer"
+                  onClick={() => navigate("/coach/analytics?tab=reports")}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h4 className="text-white font-semibold">{report.athlete}</h4>
+                      <p className="text-xs text-muted-foreground">{report.sport} • {report.date}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <p className="text-muted-foreground">Posture</p>
+                      <p className={report.posture.startsWith('+') ? 'text-green-500 font-semibold' : 'text-red-500 font-semibold'}>
+                        {report.posture}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Balance</p>
+                      <p className={report.balance.startsWith('+') ? 'text-green-500 font-semibold' : 'text-red-500 font-semibold'}>
+                        {report.balance}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Cadence</p>
+                      <p className={report.cadence.startsWith('+') ? 'text-green-500 font-semibold' : 'text-red-500 font-semibold'}>
+                        {report.cadence}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {kpis.map((kpi, index) => (

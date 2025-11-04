@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Award, Clock, Calendar, BarChart3, User, Camera, Video, Activity, Trophy } from "lucide-react";
+import { TrendingUp, Award, Clock, Calendar, BarChart3, User, Camera, Video, Activity, Trophy, FileText, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -101,6 +101,33 @@ const Dashboard = () => {
 
         {/* AI Analysis CTA */}
         <TryAnalysisWidget userRole="athlete" />
+
+        {/* Latest Combined Report */}
+        <Card className="mb-6 shadow-card-hover bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center shadow-card">
+                  <Star className="h-8 w-8 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold font-poppins mb-1">Latest Combined Report</h3>
+                  <p className="text-muted-foreground font-montserrat">
+                    View your most recent AI analysis with coach feedback
+                  </p>
+                </div>
+              </div>
+              <Button 
+                onClick={() => navigate("/athlete/reports/latest")}
+                size="lg"
+                className="font-poppins font-semibold whitespace-nowrap"
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                View Report
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="mb-6 shadow-card-hover bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
           <CardContent className="p-6">

@@ -1,12 +1,14 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { Download, TrendingUp, TrendingDown, Users, Star, Activity, Lightbulb, ArrowLeft } from "lucide-react";
+import { Download, TrendingUp, TrendingDown, Users, Star, Activity, Lightbulb, ArrowLeft, FileText, Video } from "lucide-react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 // Mock data structure as per requirements
 const MOCK_ANALYTICS = {
@@ -39,13 +41,51 @@ const SPORTS = ["All Sports", "Football", "Cricket", "Tennis"];
 const DATE_RANGES = ["Last 4 Weeks", "Last 8 Weeks", "Last 12 Weeks"];
 const METRICS = ["All Metrics", "Balance", "Posture", "Cadence", "Accuracy"];
 
+// Mock reports data
+const MOCK_REPORTS = [
+  {
+    id: "R001",
+    athleteId: "A01",
+    athleteName: "Riya Patel",
+    sport: "Football",
+    date: "2024-03-15",
+    ai: { posture: 72, balance: 68, cadence: 74, symmetry: 65, deltas: { posture: 6, balance: -4, cadence: 8, symmetry: 2 } },
+    coach: { notes: ["Open hips on cut", "Shorten stride on last two steps"], rating: 4.8, tags: ["posture", "balance"] }
+  },
+  {
+    id: "R002",
+    athleteId: "A02",
+    athleteName: "Aditya Mehra",
+    sport: "Cricket",
+    date: "2024-03-14",
+    ai: { posture: 78, balance: 82, cadence: 76, symmetry: 80, deltas: { posture: 12, balance: 8, cadence: 5, symmetry: 10 } },
+    coach: { notes: ["Excellent follow-through", "Maintain this tempo"], rating: 4.9, tags: ["cadence", "symmetry"] }
+  },
+  {
+    id: "R003",
+    athleteId: "A03",
+    athleteName: "Priya Singh",
+    sport: "Football",
+    date: "2024-03-13",
+    ai: { posture: 66, balance: 72, cadence: 66, symmetry: 63, deltas: { posture: -2, balance: 3, cadence: -6, symmetry: -4 } },
+    coach: { notes: ["Work on core strength", "Focus on landing mechanics"], rating: 4.5, tags: ["posture", "cadence"] }
+  }
+];
+
 export default function CoachAnalytics() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "overview");
   const [selectedSport, setSelectedSport] = useState("All Sports");
   const [dateRange, setDateRange] = useState("Last 8 Weeks");
   const [selectedMetric, setSelectedMetric] = useState("All Metrics");
   const [selectedAthlete, setSelectedAthlete] = useState<any>(null);
   const [athleteModalOpen, setAthleteModalOpen] = useState(false);
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) setActiveTab(tab);
+  }, [searchParams]);
 
   // Filter athletes by sport
   const filteredAthletes = selectedSport === "All Sports"
@@ -97,8 +137,9 @@ export default function CoachAnalytics() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-charcoal via-secondary to-charcoal">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Header */}
-        <div className="mb-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+          {/* Header */}
+          <div className="mb-8">
           <Button
             variant="ghost"
             onClick={() => navigate("/coach/home")}
@@ -107,11 +148,15 @@ export default function CoachAnalytics() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Button>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-4xl font-bold text-foreground mb-2 font-heading">Analytics Dashboard</h1>
-              <p className="text-muted-foreground">Track athlete progress and coaching performance</p>
-            </div>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h1 className="text-4xl font-bold text-foreground mb-2 font-heading">Analytics Dashboard</h1>
+                <p className="text-muted-foreground">Track athlete progress and coaching performance</p>
+                <TabsList className="mt-4 bg-card border border-border">
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="reports">Reports</TabsTrigger>
+                </TabsList>
+              </div>
             <div className="flex flex-wrap gap-3">
               <Select value={selectedSport} onValueChange={setSelectedSport}>
                 <SelectTrigger className="w-40 bg-card border-border text-foreground">
@@ -155,6 +200,8 @@ export default function CoachAnalytics() {
           </div>
         </div>
 
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-8">
         {/* Engagement Metrics Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <Card className="bg-card border-border hover:border-primary/50 transition-smooth shadow-card hover:shadow-card-hover">
@@ -410,6 +457,83 @@ export default function CoachAnalytics() {
             )}
           </DialogContent>
         </Dialog>
+          </TabsContent>
+
+          {/* Reports Tab */}
+          <TabsContent value="reports" className="space-y-6">
+            <Card className="bg-card border-border shadow-card">
+              <CardHeader>
+                <CardTitle className="text-foreground font-heading flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-primary" />
+                  Combined Reports
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left p-3 text-muted-foreground font-semibold">Athlete</th>
+                        <th className="text-left p-3 text-muted-foreground font-semibold">Sport</th>
+                        <th className="text-left p-3 text-muted-foreground font-semibold">Date</th>
+                        <th className="text-left p-3 text-muted-foreground font-semibold">Posture</th>
+                        <th className="text-left p-3 text-muted-foreground font-semibold">Balance</th>
+                        <th className="text-left p-3 text-muted-foreground font-semibold">Cadence</th>
+                        <th className="text-left p-3 text-muted-foreground font-semibold">Rating</th>
+                        <th className="text-right p-3 text-muted-foreground font-semibold">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {MOCK_REPORTS.map((report) => (
+                        <tr key={report.id} className="border-b border-border hover:bg-secondary/50 transition-smooth">
+                          <td className="p-3">
+                            <div>
+                              <p className="text-foreground font-semibold">{report.athleteName}</p>
+                            </div>
+                          </td>
+                          <td className="p-3 text-muted-foreground">{report.sport}</td>
+                          <td className="p-3 text-muted-foreground">{new Date(report.date).toLocaleDateString()}</td>
+                          <td className="p-3">
+                            <span className={`font-semibold ${report.ai.deltas.posture > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                              {report.ai.deltas.posture > 0 ? '+' : ''}{report.ai.deltas.posture}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            <span className={`font-semibold ${report.ai.deltas.balance > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                              {report.ai.deltas.balance > 0 ? '+' : ''}{report.ai.deltas.balance}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            <span className={`font-semibold ${report.ai.deltas.cadence > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                              {report.ai.deltas.cadence > 0 ? '+' : ''}{report.ai.deltas.cadence}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            <div className="flex items-center gap-1 text-yellow-500">
+                              <Star className="h-4 w-4 fill-yellow-500" />
+                              <span className="font-semibold">{report.coach.rating}</span>
+                            </div>
+                          </td>
+                          <td className="p-3 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Button size="sm" variant="outline" onClick={() => navigate(`/coach/analytics?reportId=${report.id}`)}>
+                                <Video className="h-4 w-4 mr-1" />
+                                View
+                              </Button>
+                              <Button size="sm" onClick={() => toast.success("Drill assignment feature coming soon!")}>
+                                Assign Drills
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
