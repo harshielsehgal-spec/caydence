@@ -193,6 +193,20 @@ const DEFAULT_FILTERS = {
   verifiedOnly: false,
 };
 
+// Pure helper functions for deduplication
+const removeFromAll = (state: SwipeState, id: number): SwipeState => {
+  return {
+    liked: state.liked.filter(c => c.id !== id),
+    passed: state.passed.filter(c => c.id !== id),
+    shortlisted: state.shortlisted.filter(c => c.id !== id),
+  };
+};
+
+const addToList = (state: SwipeState, listName: 'liked' | 'passed' | 'shortlisted', coach: CoachSimple): SwipeState => {
+  const stripped = removeFromAll(state, coach.id);
+  return { ...stripped, [listName]: [coach, ...stripped[listName]] };
+};
+
 const CoachSwipe = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -369,10 +383,7 @@ const CoachSwipe = () => {
         price: currentCoach.price,
         mode: currentCoach.mode,
       };
-      setSwipeState(prev => ({
-        ...prev,
-        passed: [...prev.passed.filter(c => c.id !== simple.id), simple]
-      }));
+      setSwipeState(prev => addToList(prev, 'passed', simple));
     }
     if (currentIndex < coaches.length - 1) {
       setCurrentIndex(currentIndex + 1);
@@ -393,10 +404,7 @@ const CoachSwipe = () => {
         price: currentCoach.price,
         mode: currentCoach.mode,
       };
-      setSwipeState(prev => ({
-        ...prev,
-        liked: [...prev.liked.filter(c => c.id !== simple.id), simple]
-      }));
+      setSwipeState(prev => addToList(prev, 'liked', simple));
       setSelectedCoachForAction(currentCoach);
       setShowActionModal(true);
     }
@@ -675,186 +683,355 @@ const CoachSwipe = () => {
         </div>
       )}
 
-      {/* Swipe Area */}
-      <div className="relative h-[calc(100vh-180px)] max-w-2xl mx-auto">
-        {coaches.slice(currentIndex, currentIndex + 2).map((coach, index) => (
-          <SwipeCard
-            key={coach.id}
-            coach={coach}
-            onSwipeLeft={handleSwipeLeft}
-            onSwipeRight={handleSwipeRight}
-            onSwipeUp={handleSwipeUp}
-            style={{
-              zIndex: coaches.length - currentIndex - index,
-              scale: index === 0 ? 1 : 0.95,
-              opacity: index === 0 ? 1 : 0.5,
-            }}
-          />
-        ))}
-      </div>
+      {/* Main Content - 3 Column Layout on Desktop */}
+      <div className="hidden md:grid md:grid-cols-[280px_1fr_280px] md:gap-4 md:px-4 md:pt-4 md:pb-32 min-h-[calc(100vh-80px)]">
+        {/* Left Sidebar - Passed */}
+        <div className="flex flex-col h-full">
+          <div className="sticky top-20 flex flex-col h-[calc(100vh-120px)]">
+            <div className="flex items-center justify-between mb-3 px-3">
+              <h3 className="text-lg font-bold text-white font-heading">Passed</h3>
+              <Badge className="bg-destructive/20 text-destructive border-destructive/40">
+                {swipeState.passed.length}
+              </Badge>
+            </div>
+            
+            {/* Always-visible drop zone */}
+            <div 
+              className={`border-2 border-dashed rounded-lg p-4 mb-3 transition-all ${
+                draggedCoach && dragSource !== 'passed' 
+                  ? 'border-vibrantOrange bg-vibrantOrange/10 shadow-orange-glow' 
+                  : 'border-destructive/40 bg-destructive/5'
+              }`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (draggedCoach && dragSource !== 'passed') {
+                  setSwipeState(prev => addToList(prev, 'passed', draggedCoach));
+                  toast.info("Moved to passed");
+                }
+              }}
+            >
+              <p className="text-sm text-center text-coolGray">
+                {draggedCoach && dragSource !== 'passed' ? '🎯 Drop here to move to Passed' : 'Drop coaches here'}
+              </p>
+            </div>
 
-      {/* Mobile Tabs - Show on small screens */}
-      <div className="md:hidden fixed bottom-[120px] left-0 right-0 z-10 px-4">
-        <div className="flex gap-2 bg-charcoal/95 backdrop-blur-md rounded-full p-1 border-2 border-vibrantOrange/20">
-          <button
-            onClick={() => setActiveTab('liked')}
-            className={`flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-smooth ${
-              activeTab === 'liked'
-                ? 'bg-vibrantOrange text-white shadow-orange-glow'
-                : 'text-coolGray hover:text-white'
-            }`}
-          >
-            Liked {swipeState.liked.length > 0 && `(${swipeState.liked.length})`}
-          </button>
-          <button
-            onClick={() => setActiveTab('passed')}
-            className={`flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-smooth ${
-              activeTab === 'passed'
-                ? 'bg-vibrantOrange text-white shadow-orange-glow'
-                : 'text-coolGray hover:text-white'
-            }`}
-          >
-            Passed {swipeState.passed.length > 0 && `(${swipeState.passed.length})`}
-          </button>
-        </div>
-        {/* Mobile Chip List */}
-        {activeTab && (
-          <div className="mt-2 bg-charcoal/95 backdrop-blur-md rounded-2xl p-3 border-2 border-vibrantOrange/20 max-h-32 overflow-x-auto">
-            <div className="flex gap-2 pb-1">
-              {(activeTab === 'liked' ? swipeState.liked : swipeState.passed).length === 0 ? (
-                <p className="text-sm text-coolGray py-2 px-3">No coaches yet</p>
+            {/* Scrollable coach list */}
+            <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+              {swipeState.passed.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-sm text-coolGray">No coaches passed yet</p>
+                </div>
               ) : (
-                (activeTab === 'liked' ? swipeState.liked : swipeState.passed).map((coach) => (
-                  <div
-                    key={coach.id}
-                    className="flex-shrink-0 bg-charcoal/80 border-2 border-white/10 rounded-xl p-2 min-w-[100px]"
-                  >
-                    <div className="flex flex-col items-center gap-1">
-                      <img
-                        src={coach.image}
-                        alt={coach.name}
-                        className="w-10 h-10 rounded-full object-cover border-2 border-vibrantOrange/30"
-                      />
-                      <p className="text-xs font-semibold text-white truncate w-full text-center">{coach.name}</p>
-                      <div className="flex items-center gap-1">
-                        <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-                        <span className="text-xs text-white">{coach.rating}</span>
+                swipeState.passed.map((coach) => (
+                  <HoverCard key={coach.id}>
+                    <HoverCardTrigger asChild>
+                      <Card 
+                        className="bg-charcoal/80 border-2 border-white/10 hover:border-vibrantOrange/50 transition-smooth cursor-move"
+                        draggable
+                        onDragStart={() => {
+                          setDraggedCoach(coach);
+                          setDragSource('passed');
+                        }}
+                        onDragEnd={() => {
+                          setDraggedCoach(null);
+                          setDragSource(null);
+                        }}
+                      >
+                        <CardContent className="p-3">
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={coach.image}
+                              alt={coach.name}
+                              className="w-12 h-12 rounded-full object-cover border-2 border-vibrantOrange/30"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-white truncate">{coach.name}</p>
+                              <div className="flex items-center gap-1 text-xs text-coolGray">
+                                <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                                <span>{coach.rating}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </HoverCardTrigger>
+                    <HoverCardContent side="right" className="w-80 bg-charcoal border-2 border-vibrantOrange/30">
+                      <div className="space-y-3">
+                        <div className="flex items-start gap-3">
+                          <img
+                            src={coach.image}
+                            alt={coach.name}
+                            className="w-16 h-16 rounded-full object-cover border-2 border-vibrantOrange/50"
+                          />
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-white">{coach.name}</h4>
+                            <p className="text-sm text-coolGray flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              {coach.city}
+                            </p>
+                            <p className="text-vibrantOrange font-semibold mt-1">₹{coach.price}/session</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              const fullCoach = mockCoaches.find(c => c.id === coach.id);
+                              if (fullCoach) {
+                                setSelectedCoachForAction(fullCoach);
+                                setShowProfileModal(true);
+                              }
+                            }}
+                            className="flex-1 border-vibrantOrange/50 text-white hover:bg-vibrantOrange/10"
+                          >
+                            View Profile
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setSwipeState(prev => addToList(prev, 'liked', coach));
+                              toast.success("Moved to liked");
+                            }}
+                            className="border-vibrantOrange text-vibrantOrange hover:bg-vibrantOrange hover:text-white"
+                          >
+                            Move to Liked
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    </HoverCardContent>
+                  </HoverCard>
                 ))
               )}
             </div>
           </div>
-        )}
-      </div>
-
-      {/* Bottom Panels - Hidden on mobile */}
-      <div className="hidden md:flex fixed bottom-[120px] left-0 right-0 z-10 justify-between px-4 pointer-events-none">
-        {/* Passed Panel - Left */}
-        <div 
-          className={`flex-1 max-w-md pointer-events-auto transition-all ${
-            draggedCoach && dragSource !== 'passed' ? 'ring-2 ring-destructive/50 ring-offset-2 ring-offset-charcoal' : ''
-          }`}
-        >
-          <CoachChipPanel 
-            title="Passed"
-            coaches={swipeState.passed}
-            onDragStart={(coach) => {
-              setDraggedCoach(coach);
-              setDragSource('passed');
-            }}
-            onDragEnd={() => {
-              setDraggedCoach(null);
-              setDragSource(null);
-            }}
-            onRemove={(id) => {
-              setSwipeState(prev => ({
-                ...prev,
-                passed: prev.passed.filter(c => c.id !== id)
-              }));
-              toast.success("Removed from passed list");
-            }}
-            onViewProfile={(coach) => {
-              const fullCoach = mockCoaches.find(c => c.id === coach.id);
-              if (fullCoach) {
-                setSelectedCoachForAction(fullCoach);
-                setShowProfileModal(true);
-              }
-            }}
-            badgeColor="bg-destructive/20 text-destructive border-destructive/40"
-            onDrop={(coach) => {
-              if (dragSource === 'liked') {
-                setSwipeState(prev => ({
-                  ...prev,
-                  liked: prev.liked.filter(c => c.id !== coach.id),
-                  passed: [...prev.passed.filter(c => c.id !== coach.id), coach]
-                }));
-                toast.info("Moved to passed");
-              } else if (dragSource === 'shortlisted') {
-                setSwipeState(prev => ({
-                  ...prev,
-                  shortlisted: prev.shortlisted.filter(c => c.id !== coach.id),
-                  passed: [...prev.passed.filter(c => c.id !== coach.id), coach]
-                }));
-                toast.info("Removed from shortlist");
-              }
-            }}
-            draggedCoach={draggedCoach}
-          />
         </div>
 
-        {/* Liked Panel - Right */}
-        <div 
-          className={`flex-1 max-w-md pointer-events-auto transition-all ${
-            draggedCoach && dragSource !== 'liked' ? 'ring-2 ring-vibrantOrange/50 ring-offset-2 ring-offset-charcoal' : ''
-          }`}
-        >
-          <CoachChipPanel 
-            title="Liked"
-            coaches={swipeState.liked}
-            onDragStart={(coach) => {
-              setDraggedCoach(coach);
-              setDragSource('liked');
-            }}
-            onDragEnd={() => {
-              setDraggedCoach(null);
-              setDragSource(null);
-            }}
-            onRemove={(id) => {
-              setSwipeState(prev => ({
-                ...prev,
-                liked: prev.liked.filter(c => c.id !== id)
-              }));
-              toast.success("Removed from liked list");
-            }}
-            onViewProfile={(coach) => {
-              const fullCoach = mockCoaches.find(c => c.id === coach.id);
-              if (fullCoach) {
-                setSelectedCoachForAction(fullCoach);
-                setShowProfileModal(true);
-              }
-            }}
-            badgeColor="bg-vibrantOrange/20 text-vibrantOrange border-vibrantOrange/40"
-            onDrop={(coach) => {
-              if (dragSource === 'passed') {
-                setSwipeState(prev => ({
-                  ...prev,
-                  passed: prev.passed.filter(c => c.id !== coach.id),
-                  liked: [...prev.liked.filter(c => c.id !== coach.id), coach]
-                }));
-                toast.success("Moved to liked");
-              } else if (dragSource === 'shortlisted') {
-                setSwipeState(prev => ({
-                  ...prev,
-                  shortlisted: prev.shortlisted.filter(c => c.id !== coach.id),
-                  liked: [...prev.liked.filter(c => c.id !== coach.id), coach]
-                }));
-                toast.info("Removed from shortlist, added to liked");
-              }
-            }}
-            draggedCoach={draggedCoach}
-          />
+        {/* Center - Swipe Card */}
+        <div className="flex flex-col items-center justify-center">
+          <div className="relative w-full max-w-lg h-[calc(100vh-250px)]">
+            {coaches.slice(currentIndex, currentIndex + 2).map((coach, index) => (
+              <SwipeCard
+                key={coach.id}
+                coach={coach}
+                onSwipeLeft={handleSwipeLeft}
+                onSwipeRight={handleSwipeRight}
+                onSwipeUp={handleSwipeUp}
+                style={{
+                  zIndex: coaches.length - currentIndex - index,
+                  scale: index === 0 ? 1 : 0.95,
+                  opacity: index === 0 ? 1 : 0.5,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Right Sidebar - Liked */}
+        <div className="flex flex-col h-full">
+          <div className="sticky top-20 flex flex-col h-[calc(100vh-120px)]">
+            <div className="flex items-center justify-between mb-3 px-3">
+              <h3 className="text-lg font-bold text-white font-heading">Liked</h3>
+              <Badge className="bg-vibrantOrange/20 text-vibrantOrange border-vibrantOrange/40">
+                {swipeState.liked.length}
+              </Badge>
+            </div>
+            
+            {/* Always-visible drop zone */}
+            <div 
+              className={`border-2 border-dashed rounded-lg p-4 mb-3 transition-all ${
+                draggedCoach && dragSource !== 'liked' 
+                  ? 'border-vibrantOrange bg-vibrantOrange/10 shadow-orange-glow' 
+                  : 'border-vibrantOrange/40 bg-vibrantOrange/5'
+              }`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (draggedCoach && dragSource !== 'liked') {
+                  setSwipeState(prev => addToList(prev, 'liked', draggedCoach));
+                  toast.success("Moved to liked");
+                }
+              }}
+            >
+              <p className="text-sm text-center text-coolGray">
+                {draggedCoach && dragSource !== 'liked' ? '🎯 Drop here to move to Liked' : 'Drop coaches here'}
+              </p>
+            </div>
+
+            {/* Scrollable coach list */}
+            <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+              {swipeState.liked.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-sm text-coolGray">No coaches liked yet</p>
+                </div>
+              ) : (
+                swipeState.liked.map((coach) => (
+                  <HoverCard key={coach.id}>
+                    <HoverCardTrigger asChild>
+                      <Card 
+                        className="bg-charcoal/80 border-2 border-white/10 hover:border-vibrantOrange/50 transition-smooth cursor-move"
+                        draggable
+                        onDragStart={() => {
+                          setDraggedCoach(coach);
+                          setDragSource('liked');
+                        }}
+                        onDragEnd={() => {
+                          setDraggedCoach(null);
+                          setDragSource(null);
+                        }}
+                      >
+                        <CardContent className="p-3">
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={coach.image}
+                              alt={coach.name}
+                              className="w-12 h-12 rounded-full object-cover border-2 border-vibrantOrange/30"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-white truncate">{coach.name}</p>
+                              <div className="flex items-center gap-1 text-xs text-coolGray">
+                                <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                                <span>{coach.rating}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </HoverCardTrigger>
+                    <HoverCardContent side="left" className="w-80 bg-charcoal border-2 border-vibrantOrange/30">
+                      <div className="space-y-3">
+                        <div className="flex items-start gap-3">
+                          <img
+                            src={coach.image}
+                            alt={coach.name}
+                            className="w-16 h-16 rounded-full object-cover border-2 border-vibrantOrange/50"
+                          />
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-white">{coach.name}</h4>
+                            <p className="text-sm text-coolGray flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              {coach.city}
+                            </p>
+                            <p className="text-vibrantOrange font-semibold mt-1">₹{coach.price}/session</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              const fullCoach = mockCoaches.find(c => c.id === coach.id);
+                              if (fullCoach) {
+                                setSelectedCoachForAction(fullCoach);
+                                setShowProfileModal(true);
+                              }
+                            }}
+                            className="flex-1 border-vibrantOrange/50 text-white hover:bg-vibrantOrange/10"
+                          >
+                            View Profile
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              setSwipeState(prev => addToList(prev, 'shortlisted', coach));
+                              toast.success("Added to shortlist!");
+                            }}
+                            className="bg-vibrantOrange hover:bg-vibrantOrange/90 text-white"
+                          >
+                            <Bookmark className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </HoverCardContent>
+                  </HoverCard>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile View - Show swipe card + tabs */}
+      <div className="md:hidden">
+        <div className="relative h-[calc(100vh-180px)] max-w-2xl mx-auto px-4 pt-4">
+          {coaches.slice(currentIndex, currentIndex + 2).map((coach, index) => (
+            <SwipeCard
+              key={coach.id}
+              coach={coach}
+              onSwipeLeft={handleSwipeLeft}
+              onSwipeRight={handleSwipeRight}
+              onSwipeUp={handleSwipeUp}
+              style={{
+                zIndex: coaches.length - currentIndex - index,
+                scale: index === 0 ? 1 : 0.95,
+                opacity: index === 0 ? 1 : 0.5,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Mobile Tabs */}
+        <div className="fixed bottom-[120px] left-0 right-0 z-10 px-4">
+          <div className="flex gap-2 bg-charcoal/95 backdrop-blur-md rounded-full p-1 border-2 border-vibrantOrange/20">
+            <button
+              onClick={() => setActiveTab('liked')}
+              className={`flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-smooth ${
+                activeTab === 'liked'
+                  ? 'bg-vibrantOrange text-white shadow-orange-glow'
+                  : 'text-coolGray hover:text-white'
+              }`}
+            >
+              Liked {swipeState.liked.length > 0 && `(${swipeState.liked.length})`}
+            </button>
+            <button
+              onClick={() => setActiveTab('passed')}
+              className={`flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-smooth ${
+                activeTab === 'passed'
+                  ? 'bg-vibrantOrange text-white shadow-orange-glow'
+                  : 'text-coolGray hover:text-white'
+              }`}
+            >
+              Passed {swipeState.passed.length > 0 && `(${swipeState.passed.length})`}
+            </button>
+          </div>
+          {/* Mobile Chip List */}
+          {activeTab && (
+            <div className="mt-2 bg-charcoal/95 backdrop-blur-md rounded-2xl p-3 border-2 border-vibrantOrange/20 max-h-32 overflow-x-auto">
+              <div className="flex gap-2 pb-1">
+                {(activeTab === 'liked' ? swipeState.liked : swipeState.passed).length === 0 ? (
+                  <p className="text-sm text-coolGray py-2 px-3">No coaches yet</p>
+                ) : (
+                  (activeTab === 'liked' ? swipeState.liked : swipeState.passed).map((coach) => (
+                    <div
+                      key={coach.id}
+                      className="flex-shrink-0 bg-charcoal/80 border-2 border-white/10 rounded-xl p-2 min-w-[100px]"
+                    >
+                      <div className="flex flex-col items-center gap-1">
+                        <img
+                          src={coach.image}
+                          alt={coach.name}
+                          className="w-10 h-10 rounded-full object-cover border-2 border-vibrantOrange/30"
+                        />
+                        <p className="text-xs font-semibold text-white truncate w-full text-center">{coach.name}</p>
+                        <div className="flex items-center gap-1">
+                          <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                          <span className="text-xs text-white">{coach.rating}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -900,12 +1077,8 @@ const CoachSwipe = () => {
           }}
           onDrop={(e) => {
             e.preventDefault();
-            if (draggedCoach && (dragSource === 'liked' || dragSource === 'passed')) {
-              setSwipeState(prev => ({
-                ...prev,
-                [dragSource]: prev[dragSource].filter(c => c.id !== draggedCoach.id),
-                shortlisted: [...prev.shortlisted.filter(c => c.id !== draggedCoach.id), draggedCoach]
-              }));
+            if (draggedCoach && dragSource !== 'shortlisted') {
+              setSwipeState(prev => addToList(prev, 'shortlisted', draggedCoach));
               toast.success("Added to shortlist!");
             }
           }}
@@ -986,10 +1159,8 @@ const CoachSwipe = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          setSwipeState(prev => ({
-                            ...prev,
-                            shortlisted: prev.shortlisted.filter(c => c.id !== coach.id)
-                          }));
+                          setSwipeState(prev => removeFromAll(prev, coach.id));
+                          toast.success("Removed from shortlist");
                         }}
                         className="border-destructive/50 text-destructive hover:bg-destructive/10"
                       >
