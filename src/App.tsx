@@ -26,6 +26,7 @@ import CoachMasterclasses from "./pages/CoachMasterclasses";
 import CoachLeaderboard from "./pages/CoachLeaderboard";
 import CoachAnalytics from "./pages/CoachAnalytics";
 import CoachMessages from "./pages/CoachMessages";
+import CoachRevenue from "./pages/CoachRevenue";
 import AthleteSkillMap from "./pages/AthleteSkillMap";
 import AthletePlaylists from "./pages/AthletePlaylists";
 import AthleteChallenges from "./pages/AthleteChallenges";
@@ -65,6 +66,7 @@ const App = () => (
           <Route path="/coach/leaderboard" element={<CoachLeaderboard />} />
           <Route path="/coach/analytics" element={<CoachAnalytics />} />
           <Route path="/coach/messages" element={<CoachMessages />} />
+          <Route path="/coach/revenue" element={<CoachRevenue />} />
           
           {/* Athlete Routes */}
           <Route path="/athlete/skill-map" element={<AthleteSkillMap />} />
