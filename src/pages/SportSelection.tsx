@@ -101,7 +101,10 @@ const SportSelection = () => {
             Choose Your Sport
           </h1>
           <p className="text-lg text-muted-foreground font-montserrat">
-            Select the sport you want to train in
+            {selectedSport 
+              ? "Select your sport to continue training — or head straight to your dashboard."
+              : "Select the sport you want to train in"
+            }
           </p>
         </div>
 
@@ -125,7 +128,15 @@ const SportSelection = () => {
           ))}
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center gap-4">
+          {selectedSport && currentRole === "athlete" && (
+            <Button
+              onClick={() => navigate("/dashboard")}
+              className="font-poppins font-semibold px-8 py-6 text-lg bg-[#FF6B00] hover:bg-[#FF6B00]/90 text-white rounded-xl shadow-lg hover:shadow-[0_0_12px_rgba(255,107,0,0.6)] transition-all"
+            >
+              Go to Dashboard
+            </Button>
+          )}
           <Button
             variant="outline"
             onClick={() => navigate("/")}
