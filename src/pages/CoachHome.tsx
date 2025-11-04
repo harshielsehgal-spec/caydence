@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useUserRole } from "@/hooks/useUserRole";
 import { RoleSwitch } from "@/components/RoleSwitch";
 import { TryAnalysisWidget } from "@/components/TryAnalysisWidget";
+import { CoachAICoPilot } from "@/components/CoachAICoPilot";
 
 const CoachHome = () => {
   const navigate = useNavigate();
@@ -191,6 +192,9 @@ const CoachHome = () => {
 
         {/* Try Analysis Widget */}
         <TryAnalysisWidget userRole="coach" />
+
+        {/* AI Co-Pilot */}
+        <CoachAICoPilot />
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
