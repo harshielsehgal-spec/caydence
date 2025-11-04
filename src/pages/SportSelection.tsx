@@ -68,11 +68,14 @@ const SportSelection = () => {
   const [selectedSport, setSelectedSport] = useState<string>("");
   const [currentRole, setCurrentRole] = useState<string>("athlete");
 
+  const [hasSavedSport, setHasSavedSport] = useState(false);
+
   useEffect(() => {
     // Check for existing sport selection
     const storedSport = localStorage.getItem("cadenceActiveSport");
     if (storedSport) {
       setSelectedSport(storedSport);
+      setHasSavedSport(true);
     }
 
     // Get current role
@@ -138,6 +141,17 @@ const SportSelection = () => {
               Continue with {selectedSport}
             </Button>
           )}
+          
+          {hasSavedSport && currentRole === "athlete" && (
+            <Button
+              variant="outline"
+              onClick={() => navigate("/dashboard")}
+              className="font-poppins font-semibold px-8 py-6 text-lg border-2 border-[#FF6B00] text-white hover:bg-[#FF6B00]/10 hover:shadow-[0_0_12px_rgba(255,107,0,0.4)] transition-all"
+            >
+              Go to Dashboard
+            </Button>
+          )}
+          
           <Button
             variant="outline"
             onClick={() => navigate("/")}
