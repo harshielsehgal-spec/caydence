@@ -89,7 +89,8 @@ const SportSelection = () => {
     if (currentRole === "coach") {
       navigate("/coach/home");
     } else {
-      navigate("/dashboard");
+      // Athletes go to skill/budget selection before coach swipe
+      navigate("/skill-mode", { state: { sport } });
     }
   };
 
@@ -131,10 +132,10 @@ const SportSelection = () => {
         <div className="flex flex-col items-center gap-4">
           {selectedSport && currentRole === "athlete" && (
             <Button
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate("/skill-mode", { state: { sport: selectedSport } })}
               className="font-poppins font-semibold px-8 py-6 text-lg bg-[#FF6B00] hover:bg-[#FF6B00]/90 text-white rounded-xl shadow-lg hover:shadow-[0_0_12px_rgba(255,107,0,0.6)] transition-all"
             >
-              Go to Dashboard
+              Continue with {selectedSport}
             </Button>
           )}
           <Button
