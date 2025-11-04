@@ -111,7 +111,7 @@ const SkillMode = () => {
           <div className="flex gap-3">
             <Button
               variant="outline"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate("/sport-selection")}
               className="flex-1 h-12 font-poppins"
             >
               Back
