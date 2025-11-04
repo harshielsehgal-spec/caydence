@@ -30,6 +30,13 @@ const CoachHome = () => {
           return;
         }
 
+        // Check if sport is selected, redirect if not
+        const activeSport = localStorage.getItem("cadenceActiveSport");
+        if (!activeSport) {
+          navigate("/sport-selection");
+          return;
+        }
+
         const { data, error } = await supabase
           .from("coaches")
           .select("*")

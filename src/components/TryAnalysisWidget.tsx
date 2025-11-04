@@ -12,6 +12,7 @@ interface TryAnalysisWidgetProps {
 
 export const TryAnalysisWidget = ({ userRole }: TryAnalysisWidgetProps) => {
   const [showComparison, setShowComparison] = useState(false);
+  const [showLearnMore, setShowLearnMore] = useState(false);
   const [selectedCoach, setSelectedCoach] = useState<any>(null);
   const navigate = useNavigate();
 
@@ -25,7 +26,22 @@ export const TryAnalysisWidget = ({ userRole }: TryAnalysisWidgetProps) => {
     posture: 72,
     balance: 68,
     cadence: 74,
+    symmetry: 65,
   };
+
+  const mockDeltas = {
+    posture: +6,
+    balance: -4,
+    cadence: +8,
+    symmetry: +2,
+  };
+
+  const keyDifferences = [
+    "Your shoulder alignment is 6% better than the reference",
+    "Balance distribution needs improvement - 4% lower on right side",
+    "Cadence timing is excellent - 8% faster than baseline",
+    "Symmetry between left and right movements can be improved"
+  ];
 
   const handleUpload = () => {
     toast.success("Upload feature coming soon!");
@@ -38,6 +54,15 @@ export const TryAnalysisWidget = ({ userRole }: TryAnalysisWidgetProps) => {
   const handleChooseCoach = () => {
     setSelectedCoach(mockCoaches[0]);
     setShowComparison(true);
+  };
+
+  const handleLearnMore = () => {
+    setShowLearnMore(true);
+  };
+
+  const handleTryNewAnalysis = () => {
+    setShowLearnMore(false);
+    handleChooseCoach();
   };
 
   const handleBookCoach = () => {
@@ -63,38 +88,27 @@ export const TryAnalysisWidget = ({ userRole }: TryAnalysisWidgetProps) => {
         <CardContent className="space-y-3">
           <p className="text-sm text-coolGray">
             {userRole === "athlete" 
-              ? "Compare your form with a coach's reference clip and get instant feedback."
-              : "Upload an athlete's clip and compare it with your reference technique."}
+              ? "Compare your form with a coach and see key differences."
+              : "Compare athlete clips to your reference and attach feedback."}
           </p>
           <div className="flex gap-2">
             <Button
-              onClick={handleRecord}
+              onClick={handleLearnMore}
               variant="outline"
               size="sm"
               className="flex-1 border-vibrantOrange/30 hover:bg-vibrantOrange/10"
             >
-              <Video className="h-4 w-4 mr-2" />
-              Record
+              Learn More
             </Button>
             <Button
-              onClick={handleUpload}
-              variant="outline"
+              onClick={handleChooseCoach}
+              variant="default"
               size="sm"
-              className="flex-1 border-vibrantOrange/30 hover:bg-vibrantOrange/10"
+              className="flex-1 bg-vibrantOrange hover:bg-vibrantOrange/90"
             >
-              <Upload className="h-4 w-4 mr-2" />
-              Upload
+              Try New Analysis
             </Button>
           </div>
-          <Button
-            onClick={handleChooseCoach}
-            variant="default"
-            size="sm"
-            className="w-full bg-vibrantOrange hover:bg-vibrantOrange/90"
-          >
-            <Search className="h-4 w-4 mr-2" />
-            {userRole === "athlete" ? "Choose Coach Reference" : "Choose Reference Clip"}
-          </Button>
         </CardContent>
       </Card>
 
@@ -149,36 +163,23 @@ export const TryAnalysisWidget = ({ userRole }: TryAnalysisWidgetProps) => {
             </div>
 
             {/* Metrics comparison */}
-            <div className="grid grid-cols-3 gap-4">
-              <Card className="bg-gradient-to-br from-charcoal to-black border-vibrantOrange/20">
-                <CardContent className="pt-6">
-                  <div className="text-center space-y-2">
-                    <p className="text-sm text-coolGray">Posture</p>
-                    <p className="text-3xl font-bold text-white">{mockMetrics.posture}</p>
-                    <p className="text-xs text-orange-400">-8 vs reference</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-charcoal to-black border-vibrantOrange/20">
-                <CardContent className="pt-6">
-                  <div className="text-center space-y-2">
-                    <p className="text-sm text-coolGray">Balance</p>
-                    <p className="text-3xl font-bold text-white">{mockMetrics.balance}</p>
-                    <p className="text-xs text-orange-400">-12 vs reference</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-charcoal to-black border-vibrantOrange/20">
-                <CardContent className="pt-6">
-                  <div className="text-center space-y-2">
-                    <p className="text-sm text-coolGray">Cadence</p>
-                    <p className="text-3xl font-bold text-white">{mockMetrics.cadence}</p>
-                    <p className="text-xs text-orange-400">-6 vs reference</p>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="grid grid-cols-4 gap-4">
+              {Object.entries(mockMetrics).map(([key, value]) => {
+                const delta = mockDeltas[key as keyof typeof mockDeltas];
+                return (
+                  <Card key={key} className="bg-gradient-to-br from-charcoal to-black border-vibrantOrange/20">
+                    <CardContent className="pt-6">
+                      <div className="text-center space-y-2">
+                        <p className="text-sm text-coolGray capitalize">{key}</p>
+                        <p className="text-3xl font-bold text-white">{value}</p>
+                        <p className={`text-xs ${delta > 0 ? 'text-emerald-400' : 'text-orange-400'}`}>
+                          {delta > 0 ? '+' : ''}{delta} vs reference
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
 
             {/* Action button */}
@@ -205,6 +206,129 @@ export const TryAnalysisWidget = ({ userRole }: TryAnalysisWidgetProps) => {
                   Save as Feedback
                 </Button>
               )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Learn More Modal - Detailed Report */}
+      <Dialog open={showLearnMore} onOpenChange={setShowLearnMore}>
+        <DialogContent className="max-w-5xl bg-charcoal border-vibrantOrange/30 max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white font-poppins text-2xl">Your Latest Analysis Report</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Side-by-side comparison */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-coolGray">
+                  {userRole === "athlete" ? "Your Form" : "Athlete Clip"}
+                </p>
+                <div className="relative aspect-video bg-black/50 rounded-lg overflow-hidden border border-vibrantOrange/30">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Video className="h-16 w-16 text-vibrantOrange/30" />
+                  </div>
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 400 300">
+                    <circle cx="200" cy="80" r="15" fill="none" stroke="#FF6B00" strokeWidth="2" />
+                    <line x1="200" y1="95" x2="200" y2="150" stroke="#FF6B00" strokeWidth="2" />
+                    <line x1="200" y1="110" x2="170" y2="130" stroke="#FF6B00" strokeWidth="2" />
+                    <line x1="200" y1="110" x2="230" y2="130" stroke="#FF6B00" strokeWidth="2" />
+                    <line x1="200" y1="150" x2="170" y2="200" stroke="#FF6B00" strokeWidth="2" />
+                    <line x1="200" y1="150" x2="230" y2="200" stroke="#FF6B00" strokeWidth="2" />
+                  </svg>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-coolGray">
+                  {userRole === "athlete" ? "Coach Reference" : "Reference Technique"}
+                </p>
+                <div className="relative aspect-video bg-black/50 rounded-lg overflow-hidden border border-emerald-500/30">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <CheckCircle2 className="h-16 w-16 text-emerald-500/30" />
+                  </div>
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 400 300">
+                    <circle cx="200" cy="80" r="15" fill="none" stroke="#10b981" strokeWidth="2" />
+                    <line x1="200" y1="95" x2="200" y2="150" stroke="#10b981" strokeWidth="2" />
+                    <line x1="200" y1="110" x2="170" y2="135" stroke="#10b981" strokeWidth="2" />
+                    <line x1="200" y1="110" x2="230" y2="135" stroke="#10b981" strokeWidth="2" />
+                    <line x1="200" y1="150" x2="170" y2="210" stroke="#10b981" strokeWidth="2" />
+                    <line x1="200" y1="150" x2="230" y2="210" stroke="#10b981" strokeWidth="2" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Full metrics grid */}
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4 font-poppins">Performance Metrics</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {Object.entries(mockMetrics).map(([key, value]) => {
+                  const delta = mockDeltas[key as keyof typeof mockDeltas];
+                  return (
+                    <Card key={key} className="bg-gradient-to-br from-charcoal to-black border-vibrantOrange/20">
+                      <CardContent className="pt-6">
+                        <div className="text-center space-y-2">
+                          <p className="text-sm text-coolGray capitalize">{key}</p>
+                          <p className="text-4xl font-bold text-white">{value}</p>
+                          <div className="flex items-center justify-center gap-1">
+                            <span className={`text-lg font-semibold ${delta > 0 ? 'text-emerald-400' : 'text-orange-400'}`}>
+                              {delta > 0 ? '+' : ''}{delta}
+                            </span>
+                            <span className="text-xs text-coolGray">vs reference</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Key Differences */}
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4 font-poppins">Key Differences</h3>
+              <Card className="bg-gradient-to-br from-charcoal to-black border-vibrantOrange/20">
+                <CardContent className="pt-6">
+                  <ul className="space-y-3">
+                    {keyDifferences.map((diff, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <div className="h-2 w-2 bg-vibrantOrange rounded-full mt-2 flex-shrink-0" />
+                        <p className="text-coolGray">{diff}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Actions */}
+            <div className="flex justify-between items-center pt-4 border-t border-vibrantOrange/20">
+              <Button
+                onClick={() => setShowLearnMore(false)}
+                variant="outline"
+                className="border-vibrantOrange/30"
+              >
+                Close
+              </Button>
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleTryNewAnalysis}
+                  variant="outline"
+                  className="border-vibrantOrange/30"
+                >
+                  Try New Analysis
+                </Button>
+                {userRole === "athlete" && (
+                  <Button
+                    onClick={handleBookCoach}
+                    className="bg-vibrantOrange hover:bg-vibrantOrange/90"
+                  >
+                    Book this Coach
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </DialogContent>

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import SportCard from "@/components/SportCard";
 import { 
@@ -9,6 +10,7 @@ import {
   Zap,
   Activity
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const sports = [
   { 
@@ -63,9 +65,32 @@ const sports = [
 
 const SportSelection = () => {
   const navigate = useNavigate();
+  const [selectedSport, setSelectedSport] = useState<string>("");
+  const [currentRole, setCurrentRole] = useState<string>("athlete");
 
-  const handleSportSelect = (sport: string) => {
-    navigate("/skill-mode", { state: { sport } });
+  useEffect(() => {
+    // Check for existing sport selection
+    const storedSport = localStorage.getItem("cadenceActiveSport");
+    if (storedSport) {
+      setSelectedSport(storedSport);
+    }
+
+    // Get current role
+    const role = localStorage.getItem("currentRole") || "athlete";
+    setCurrentRole(role);
+  }, []);
+
+  const handleSportSelect = async (sport: string) => {
+    // Save to localStorage
+    localStorage.setItem("cadenceActiveSport", sport);
+    setSelectedSport(sport);
+
+    // Route based on current role
+    if (currentRole === "coach") {
+      navigate("/coach/home");
+    } else {
+      navigate("/dashboard");
+    }
   };
 
   return (
@@ -87,13 +112,15 @@ const SportSelection = () => {
               className="animate-slide-up"
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              <SportCard
-                name={sport.name}
-                icon={sport.icon}
-                description={sport.description}
-                gradient={sport.gradient}
-                onClick={() => handleSportSelect(sport.name)}
-              />
+              <div className={`relative ${selectedSport === sport.name ? 'ring-2 ring-primary ring-offset-2 ring-offset-background rounded-xl' : ''}`}>
+                <SportCard
+                  name={sport.name}
+                  icon={sport.icon}
+                  description={sport.description}
+                  gradient={sport.gradient}
+                  onClick={() => handleSportSelect(sport.name)}
+                />
+              </div>
             </div>
           ))}
         </div>

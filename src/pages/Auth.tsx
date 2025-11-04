@@ -63,16 +63,8 @@ const Auth = () => {
         
         toast.success("Login successful!");
         
-        // Route based on selected role if user has it, otherwise use first available
-        if (hasSelectedRole && userType === "coach") {
-          navigate("/coach/home");
-        } else if (hasSelectedRole && userType === "athlete") {
-          navigate("/dashboard");
-        } else if (userRoles.includes("coach")) {
-          navigate("/coach/home");
-        } else {
-          navigate("/dashboard");
-        }
+        // Always route to sport selection first
+        navigate("/sport-selection");
       } else {
         // Check if email already exists
         const { data: existingUser } = await supabase.auth.signInWithPassword({
@@ -115,6 +107,7 @@ const Auth = () => {
           localStorage.setItem("currentRole", userType);
           toast.success(`${userType === "coach" ? "Coach" : "Athlete"} role added successfully!`);
           
+          // Always go to sport selection for athletes, or coach onboarding for new coaches
           if (userType === "athlete") {
             navigate("/sport-selection");
           } else {

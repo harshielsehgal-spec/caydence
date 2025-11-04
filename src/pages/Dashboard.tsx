@@ -19,7 +19,13 @@ const Dashboard = () => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
     });
-  }, []);
+
+    // Check if sport is selected, redirect if not
+    const activeSport = localStorage.getItem("cadenceActiveSport");
+    if (!activeSport) {
+      navigate("/sport-selection");
+    }
+  }, [navigate]);
 
   const handleRoleSwitch = (role: "athlete" | "coach") => {
     switchRole(role);
