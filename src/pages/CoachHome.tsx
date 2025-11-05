@@ -13,6 +13,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { RoleSwitch } from "@/components/RoleSwitch";
 import { TryAnalysisWidget } from "@/components/TryAnalysisWidget";
 import { CoachAICoPilot } from "@/components/CoachAICoPilot";
+import { CoachSidebar } from "@/components/CoachSidebar";
 
 const CoachHome = () => {
   const navigate = useNavigate();
@@ -169,8 +170,10 @@ const CoachHome = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0D0D0D] via-[#1A1A1A] to-[#0D0D0D] p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <>
+      <CoachSidebar />
+      <div className="min-h-screen bg-gradient-to-br from-[#0D0D0D] via-[#1A1A1A] to-[#0D0D0D] p-4 md:p-8 lg:pl-72">
+        <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -327,12 +330,13 @@ const CoachHome = () => {
                     <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
       </div>
     </div>
+    </>
   );
 };
 

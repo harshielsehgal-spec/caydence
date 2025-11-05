@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "@/hooks/useUserRole";
 import { RoleSwitch } from "@/components/RoleSwitch";
 import { TryAnalysisWidget } from "@/components/TryAnalysisWidget";
+import { AthleteBottomNav } from "@/components/AthleteBottomNav";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -330,6 +331,9 @@ const Dashboard = () => {
           </Button>
         </div>
       </div>
+
+      {/* Bottom Navigation for Mobile */}
+      <AthleteBottomNav />
     </div>
   );
 };
