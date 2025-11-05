@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   Users, Calendar, Star, DollarSign, 
-  Plus, Clock, MessageSquare, ArrowLeft, TrendingUp, Video, Wallet
+  Plus, Clock, MessageSquare, ArrowLeft, TrendingUp, Video, Wallet, Users2
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -151,6 +151,12 @@ const CoachHome = () => {
       label: "Revenue", 
       icon: Wallet, 
       onClick: () => navigate("/coach/revenue"),
+      variant: "outline" as const
+    },
+    { 
+      label: "Community", 
+      icon: Users2, 
+      onClick: () => navigate("/community"),
       variant: "outline" as const
     },
   ];

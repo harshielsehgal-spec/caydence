@@ -32,6 +32,7 @@ import CoachRevenue from "./pages/CoachRevenue";
 import AthleteSkillMap from "./pages/AthleteSkillMap";
 import AthletePlaylists from "./pages/AthletePlaylists";
 import AthleteChallenges from "./pages/AthleteChallenges";
+import Community from "./pages/Community";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -77,6 +78,9 @@ const App = () => (
           <Route path="/athlete/skill-map" element={<AthleteSkillMap />} />
           <Route path="/athlete/playlists" element={<AthletePlaylists />} />
           <Route path="/athlete/challenges" element={<AthleteChallenges />} />
+          
+          {/* Community Route */}
+          <Route path="/community" element={<Community />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Award, Clock, Calendar, BarChart3, User, Camera, Video, Activity, Trophy, FileText, Star } from "lucide-react";
+import { TrendingUp, Award, Clock, Calendar, BarChart3, User, Camera, Video, Activity, Trophy, FileText, Star, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -286,7 +286,7 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           <Button
             onClick={() => navigate("/video-upload")}
             className="h-20 text-lg font-poppins"
@@ -319,6 +319,14 @@ const Dashboard = () => {
             className="h-20 text-lg font-poppins"
           >
             Find Coaches
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate("/community")}
+            className="h-20 text-lg font-poppins"
+          >
+            <Users className="mr-2 h-5 w-5" />
+            Community
           </Button>
         </div>
       </div>
