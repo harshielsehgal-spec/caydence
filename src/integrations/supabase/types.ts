@@ -109,6 +109,7 @@ export type Database = {
           photo_url: string | null
           rating: number | null
           reviews_count: number | null
+          setup_complete: boolean
           sports: string[]
           updated_at: string | null
           user_id: string
@@ -127,6 +128,7 @@ export type Database = {
           photo_url?: string | null
           rating?: number | null
           reviews_count?: number | null
+          setup_complete?: boolean
           sports?: string[]
           updated_at?: string | null
           user_id: string
@@ -145,6 +147,7 @@ export type Database = {
           photo_url?: string | null
           rating?: number | null
           reviews_count?: number | null
+          setup_complete?: boolean
           sports?: string[]
           updated_at?: string | null
           user_id?: string

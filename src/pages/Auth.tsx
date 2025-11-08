@@ -80,6 +80,9 @@ const Auth = () => {
         key.includes('cadenceSwipeState_') && !key.includes(data.user.id)
       );
       oldKeys.forEach(key => localStorage.removeItem(key));
+      
+      // Clean up any draft state
+      localStorage.removeItem('coachDraft');
 
       // Fetch user roles
       const { data: rolesData } = await supabase
@@ -101,7 +104,7 @@ const Auth = () => {
       // Success - set active role and route
       localStorage.setItem("currentRole", pendingRole);
       toast.success("Login successful!");
-      routeAfterAuth(pendingRole);
+      await routeAfterAuth(pendingRole);
     } catch (error: any) {
       console.error("Login error:", error);
       toast.error(error.message || "Login failed. Please try again.");
@@ -135,7 +138,7 @@ const Auth = () => {
 
       localStorage.setItem("currentRole", pendingRole);
       toast.success("Account created successfully!");
-      routeAfterAuth(pendingRole);
+      await routeAfterAuth(pendingRole);
     } catch (error: any) {
       console.error("Signup error:", error);
       toast.error(error.message || "Signup failed. Please try again.");
@@ -157,17 +160,32 @@ const Auth = () => {
       localStorage.setItem("currentRole", pendingRole);
       toast.success(`${pendingRole === "coach" ? "Coach" : "Athlete"} role added!`);
       setShowAddRoleDialog(false);
-      routeAfterAuth(pendingRole);
+      await routeAfterAuth(pendingRole);
     } catch (error: any) {
       console.error("Add role error:", error);
       toast.error("Failed to add role. Please try again.");
     }
   };
 
-  const routeAfterAuth = (role: "athlete" | "coach") => {
+  const routeAfterAuth = async (role: "athlete" | "coach") => {
     if (role === "coach") {
-      // TODO: check if coach profile setup is done
-      navigate("/coach/onboarding");
+      // Check if coach profile exists and is complete
+      try {
+        const { data: coachProfile } = await supabase
+          .from("coaches")
+          .select("setup_complete")
+          .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
+          .maybeSingle();
+        
+        if (coachProfile?.setup_complete) {
+          navigate("/coach/home");
+        } else {
+          navigate("/coach/onboarding");
+        }
+      } catch (error) {
+        console.error("Error checking coach profile:", error);
+        navigate("/coach/onboarding");
+      }
     } else {
       navigate("/sport-selection");
     }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ const CoachOnboarding = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     photoUrl: "",
@@ -30,10 +31,47 @@ const CoachOnboarding = () => {
     mode: [] as string[],
   });
 
+  // Load existing coach profile if it exists
+  useEffect(() => {
+    const loadExistingProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: profile } = await supabase
+          .from("coaches")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profile) {
+          setFormData({
+            name: profile.name || "",
+            photoUrl: profile.photo_url || "",
+            bio: profile.bio || "",
+            cities: profile.cities || [],
+            sports: profile.sports || [],
+            languages: profile.languages || [],
+            yearsExperience: profile.years_experience || 0,
+            perSessionFee: profile.per_session_fee || 500,
+            mode: profile.mode || [],
+          });
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+
+    loadExistingProfile();
+  }, []);
+
   const totalSteps = 4;
   const progress = (step / totalSteps) * 100;
 
   const handleSubmit = async () => {
+    // Prevent double submission
+    if (isSaving) return;
+
     if (!formData.name || !formData.bio || formData.sports.length === 0) {
       toast.error("Please fill in all required fields");
       return;
@@ -44,12 +82,14 @@ const CoachOnboarding = () => {
       return;
     }
 
+    setIsSaving(true);
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const { error } = await supabase.from("coaches").insert({
+      // Use upsert to handle both create and update idempotently
+      const { error } = await supabase.from("coaches").upsert({
         user_id: user.id,
         name: formData.name,
         photo_url: formData.photoUrl,
@@ -60,17 +100,25 @@ const CoachOnboarding = () => {
         years_experience: formData.yearsExperience,
         per_session_fee: formData.perSessionFee,
         mode: formData.mode,
+        setup_complete: true,
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'user_id'
       });
 
       if (error) throw error;
 
-      toast.success("Coach profile created successfully!");
+      // Clean up any temp state
+      localStorage.removeItem('coachDraft');
+      
+      toast.success("Coach profile saved successfully!");
       navigate("/coach/home");
     } catch (error: any) {
       console.error("Onboarding error:", error);
-      toast.error(error.message || "Failed to create profile");
+      toast.error(error.message || "Failed to save profile");
     } finally {
       setLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -348,11 +396,11 @@ const CoachOnboarding = () => {
                 <Button
                   type="button"
                   onClick={handleSubmit}
-                  disabled={loading}
+                  disabled={loading || isSaving}
                   className="flex-1"
                   variant="glow"
                 >
-                  {loading ? "Creating Profile..." : "Complete Setup"}
+                  {isSaving ? "Saving Profile..." : "Complete Setup"}
                 </Button>
               )}
             </div>
