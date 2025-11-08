@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { z } from "zod";
 
 interface MasterclassFormModalProps {
   open: boolean;
@@ -22,6 +23,19 @@ interface MasterclassFormModalProps {
 const SPORTS = ["Football", "Cricket", "Tennis", "Basketball", "Badminton"];
 const MODES = ["live", "recorded"];
 const TAGS_OPTIONS = ["Pro Tips", "Fitness Drills", "Technique Breakdown", "Mental Game", "Strategy"];
+
+const masterclassSchema = z.object({
+  title: z.string().trim().min(5, "Title must be at least 5 characters").max(100, "Title must be less than 100 characters"),
+  sport: z.string().min(1, "Sport is required"),
+  mode: z.enum(["live", "recorded"], { errorMap: () => ({ message: "Mode must be live or recorded" }) }),
+  price_inr: z.number().min(0, "Price must be positive").max(100000, "Price must be less than ₹1,00,000"),
+  duration_min: z.number().min(15, "Duration must be at least 15 minutes").max(480, "Duration must be less than 8 hours"),
+  seats: z.number().min(1, "At least 1 seat required").max(1000, "Maximum 1000 seats"),
+  description: z.string().max(1000, "Description must be less than 1000 characters").optional(),
+  video_url: z.string().url("Invalid video URL").optional().or(z.literal("")),
+  trailer_url: z.string().url("Invalid trailer URL").optional().or(z.literal("")),
+  tags: z.array(z.string()).optional(),
+});
 
 export const MasterclassFormModal = ({ 
   open, 
@@ -59,9 +73,28 @@ export const MasterclassFormModal = ({
     setLoading(true);
 
     try {
+      // Validate input data
+      const validationResult = masterclassSchema.safeParse(formData);
+
+      if (!validationResult.success) {
+        const firstError = validationResult.error.errors[0];
+        toast.error(firstError.message);
+        setLoading(false);
+        return;
+      }
+
       const payload = {
-        ...formData,
         coach_id: coachId,
+        title: validationResult.data.title,
+        sport: validationResult.data.sport,
+        mode: validationResult.data.mode,
+        price_inr: validationResult.data.price_inr,
+        duration_min: validationResult.data.duration_min,
+        seats: validationResult.data.seats,
+        description: validationResult.data.description || "",
+        video_url: validationResult.data.video_url || "",
+        trailer_url: validationResult.data.trailer_url || "",
+        tags: validationResult.data.tags || [],
         scheduled_at: formData.scheduled_at ? new Date(formData.scheduled_at).toISOString() : null,
       };
 
@@ -85,7 +118,7 @@ export const MasterclassFormModal = ({
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      console.error("Error saving masterclass:", error);
+      if (import.meta.env.DEV) console.error("Error saving masterclass:", error);
       toast.error("Failed to save masterclass");
     } finally {
       setLoading(false);

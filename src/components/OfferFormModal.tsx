@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { z } from "zod";
 
 interface OfferFormModalProps {
   open: boolean;
@@ -21,6 +22,17 @@ interface OfferFormModalProps {
 const SPORTS = ["Cricket", "Football", "Basketball", "Tennis", "Badminton", "Athletics"];
 const LEVELS = ["Beginner", "Intermediate", "Advanced"];
 const MODES = ["Online", "Offline", "Hybrid"];
+
+const offerSchema = z.object({
+  title: z.string().trim().min(5, "Title must be at least 5 characters").max(100, "Title must be less than 100 characters"),
+  sport: z.string().min(1, "Sport is required"),
+  level: z.string().min(1, "Level is required"),
+  description: z.string().max(500, "Description must be less than 500 characters").optional(),
+  price_inr: z.number().min(0, "Price must be positive").max(100000, "Price must be less than ₹1,00,000"),
+  duration_min: z.number().min(15, "Duration must be at least 15 minutes").max(480, "Duration must be less than 8 hours"),
+  slots_per_week: z.number().min(1, "At least 1 slot per week required").max(50, "Maximum 50 slots per week"),
+  mode: z.array(z.string()).min(1, "At least one mode must be selected"),
+});
 
 export function OfferFormModal({ open, onOpenChange, coachId, offer, onSuccess }: OfferFormModalProps) {
   const [title, setTitle] = useState(offer?.title || "");
@@ -41,15 +53,10 @@ export function OfferFormModal({ open, onOpenChange, coachId, offer, onSuccess }
   };
 
   const handleSubmit = async (status: "draft" | "published") => {
-    if (!title || !sport || !level || !priceInr || selectedModes.length === 0) {
-      toast.error("Please fill all required fields");
-      return;
-    }
-
     setLoading(true);
     try {
-      const offerData = {
-        coach_id: coachId,
+      // Validate input data
+      const validationResult = offerSchema.safeParse({
         title,
         sport,
         level,
@@ -58,6 +65,25 @@ export function OfferFormModal({ open, onOpenChange, coachId, offer, onSuccess }
         duration_min: durationMin,
         slots_per_week: slotsPerWeek,
         mode: selectedModes,
+      });
+
+      if (!validationResult.success) {
+        const firstError = validationResult.error.errors[0];
+        toast.error(firstError.message);
+        setLoading(false);
+        return;
+      }
+
+      const offerData = {
+        coach_id: coachId,
+        title: validationResult.data.title,
+        sport: validationResult.data.sport,
+        level: validationResult.data.level,
+        description: validationResult.data.description || "",
+        price_inr: validationResult.data.price_inr,
+        duration_min: validationResult.data.duration_min,
+        slots_per_week: validationResult.data.slots_per_week,
+        mode: validationResult.data.mode,
         includes_ai_check: includesAiCheck,
         status,
       };
@@ -73,7 +99,7 @@ export function OfferFormModal({ open, onOpenChange, coachId, offer, onSuccess }
       } else {
         const { error } = await supabase
           .from("offers")
-          .insert(offerData);
+          .insert([offerData]);
         
         if (error) throw error;
         toast.success(`Offer ${status === "published" ? "published" : "saved as draft"} successfully`);
@@ -82,7 +108,7 @@ export function OfferFormModal({ open, onOpenChange, coachId, offer, onSuccess }
       onSuccess();
       onOpenChange(false);
     } catch (error: any) {
-      console.error("Error saving offer:", error);
+      if (import.meta.env.DEV) console.error("Error saving offer:", error);
       toast.error("Failed to save offer");
     } finally {
       setLoading(false);
