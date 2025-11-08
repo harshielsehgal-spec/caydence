@@ -9,10 +9,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Upload, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
 
 const SPORTS_OPTIONS = ["Cricket", "Football", "Basketball", "Tennis", "Badminton", "Running", "Swimming"];
 const CITIES_OPTIONS = ["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Pune", "Kolkata"];
 const LANGUAGES = ["English", "Hindi", "Tamil", "Telugu", "Kannada", "Malayalam", "Marathi"];
+
+// Validation schema
+const coachProfileSchema = z.object({
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name too long"),
+  bio: z.string().trim().min(120, "Bio must be at least 120 characters").max(160, "Bio must be 160 characters or less"),
+  photoUrl: z.string().url("Invalid photo URL").optional().or(z.literal("")),
+  sports: z.array(z.string()).min(1, "Select at least one sport"),
+  yearsExperience: z.number().min(0, "Experience must be 0 or more").max(80, "Experience too high"),
+  languages: z.array(z.string()).min(1, "Select at least one language"),
+  perSessionFee: z.number().min(0, "Fee must be 0 or more"),
+  cities: z.array(z.string()).min(1, "Select at least one city"),
+  mode: z.array(z.string()).min(1, "Select at least one coaching mode"),
+});
 
 const CoachOnboarding = () => {
   const navigate = useNavigate();
@@ -58,7 +72,7 @@ const CoachOnboarding = () => {
           });
         }
       } catch (error) {
-        console.error("Error loading profile:", error);
+        if (import.meta.env.DEV) console.error("Error loading profile:", error);
       }
     };
 
@@ -72,34 +86,40 @@ const CoachOnboarding = () => {
     // Prevent double submission
     if (isSaving) return;
 
-    if (!formData.name || !formData.bio || formData.sports.length === 0) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-
-    if (formData.bio.length < 120 || formData.bio.length > 160) {
-      toast.error("Bio must be between 120-160 characters");
-      return;
-    }
-
     setIsSaving(true);
     setLoading(true);
+    
     try {
+      // Validate profile data
+      const validation = coachProfileSchema.safeParse(formData);
+      
+      if (!validation.success) {
+        toast.error(validation.error.errors[0].message);
+        setIsSaving(false);
+        setLoading(false);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!user) {
+        toast.error("Session expired. Please log in again.");
+        setIsSaving(false);
+        setLoading(false);
+        return;
+      }
 
       // Use upsert to handle both create and update idempotently
       const { error } = await supabase.from("coaches").upsert({
         user_id: user.id,
-        name: formData.name,
-        photo_url: formData.photoUrl,
-        bio: formData.bio,
-        sports: formData.sports,
-        cities: formData.cities,
-        languages: formData.languages,
-        years_experience: formData.yearsExperience,
-        per_session_fee: formData.perSessionFee,
-        mode: formData.mode,
+        name: validation.data.name,
+        photo_url: validation.data.photoUrl || null,
+        bio: validation.data.bio,
+        sports: validation.data.sports,
+        cities: validation.data.cities,
+        languages: validation.data.languages,
+        years_experience: validation.data.yearsExperience,
+        per_session_fee: validation.data.perSessionFee,
+        mode: validation.data.mode,
         setup_complete: true,
         updated_at: new Date().toISOString(),
       }, {
@@ -114,8 +134,8 @@ const CoachOnboarding = () => {
       toast.success("Coach profile saved successfully!");
       navigate("/coach/home");
     } catch (error: any) {
-      console.error("Onboarding error:", error);
-      toast.error(error.message || "Failed to save profile");
+      if (import.meta.env.DEV) console.error("Onboarding error:", error);
+      toast.error("Failed to save profile. Please try again.");
     } finally {
       setLoading(false);
       setIsSaving(false);

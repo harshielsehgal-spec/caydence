@@ -8,6 +8,18 @@ import { User, Dumbbell } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AddRoleDialog } from "@/components/AddRoleDialog";
+import { z } from "zod";
+
+// Input validation schemas
+const emailSchema = z.string().trim().email("Invalid email address").max(255, "Email too long");
+const passwordSchema = z.string().min(8, "Password must be at least 8 characters").max(128, "Password too long");
+const signupSchema = z.object({
+  email: emailSchema,
+  password: passwordSchema,
+  age: z.string().optional(),
+  gender: z.string().optional(),
+  city: z.string().trim().max(100, "City name too long").optional(),
+});
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -50,10 +62,25 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      // Attempt sign in
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // Validate input
+      const validation = z.object({
+        email: emailSchema,
+        password: passwordSchema,
+      }).safeParse({
         email: formData.email,
         password: formData.password,
+      });
+
+      if (!validation.success) {
+        toast.error(validation.error.errors[0].message);
+        setLoading(false);
+        return;
+      }
+
+      // Attempt sign in
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: validation.data.email,
+        password: validation.data.password,
       });
 
       if (error) {
@@ -106,8 +133,8 @@ const Auth = () => {
       toast.success("Login successful!");
       await routeAfterAuth(pendingRole);
     } catch (error: any) {
-      console.error("Login error:", error);
-      toast.error(error.message || "Login failed. Please try again.");
+      if (import.meta.env.DEV) console.error("Login error:", error);
+      toast.error("Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -118,9 +145,24 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signUp({
+      // Validate input
+      const validation = signupSchema.safeParse({
         email: formData.email,
         password: formData.password,
+        age: formData.age,
+        gender: formData.gender,
+        city: formData.city,
+      });
+
+      if (!validation.success) {
+        toast.error(validation.error.errors[0].message);
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signUp({
+        email: validation.data.email,
+        password: validation.data.password,
         options: {
           emailRedirectTo: `${window.location.origin}/`,
         },
@@ -140,8 +182,8 @@ const Auth = () => {
       toast.success("Account created successfully!");
       await routeAfterAuth(pendingRole);
     } catch (error: any) {
-      console.error("Signup error:", error);
-      toast.error(error.message || "Signup failed. Please try again.");
+      if (import.meta.env.DEV) console.error("Signup error:", error);
+      toast.error("Signup failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -162,7 +204,7 @@ const Auth = () => {
       setShowAddRoleDialog(false);
       await routeAfterAuth(pendingRole);
     } catch (error: any) {
-      console.error("Add role error:", error);
+      if (import.meta.env.DEV) console.error("Add role error:", error);
       toast.error("Failed to add role. Please try again.");
     }
   };
@@ -183,7 +225,7 @@ const Auth = () => {
           navigate("/coach/onboarding");
         }
       } catch (error) {
-        console.error("Error checking coach profile:", error);
+        if (import.meta.env.DEV) console.error("Error checking coach profile:", error);
         navigate("/coach/onboarding");
       }
     } else {
