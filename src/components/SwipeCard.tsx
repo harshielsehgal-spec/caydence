@@ -6,6 +6,7 @@ interface Coach {
   id: number;
   name: string;
   sport: string;
+  sportTag: string;
   rating: number;
   price: number;
   city: string;

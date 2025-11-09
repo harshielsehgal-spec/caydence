@@ -1,11 +1,14 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Star, MapPin, Video, Users } from "lucide-react";
 
 interface Coach {
   id: number;
   name: string;
   sport: string;
+  sportTag: string;
   rating: number;
   price: number;
   city: string;
@@ -22,58 +25,91 @@ interface CoachCardProps {
 
 const CoachCard = ({ coach, onClick }: CoachCardProps) => {
   const getModeIcon = () => {
-    if (coach.mode.toLowerCase().includes("online")) return <Video className="h-3 w-3" />;
-    if (coach.mode.toLowerCase().includes("offline")) return <Users className="h-3 w-3" />;
-    return <Video className="h-3 w-3" />;
+    if (coach.mode.toLowerCase().includes("online") && coach.mode.toLowerCase().includes("offline")) {
+      return <Video className="h-3 w-3" />;
+    }
+    if (coach.mode.toLowerCase().includes("online")) {
+      return <Video className="h-3 w-3" />;
+    }
+    return <Users className="h-3 w-3" />;
+  };
+
+  const getSportIcon = () => {
+    switch (coach.sportTag) {
+      case "football": return "⚽";
+      case "cricket": return "🏏";
+      case "basketball": return "🏀";
+      case "tennis": return "🎾";
+      case "badminton": return "🏸";
+      default: return "🏅";
+    }
   };
 
   return (
-    <Card 
-      className="cursor-pointer transition-smooth hover:shadow-card-hover group overflow-hidden"
-      onClick={onClick}
-    >
-      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5">
-        <img 
-          src={coach.image} 
-          alt={coach.name}
-          className="w-full h-full object-cover group-hover:scale-110 transition-smooth"
-        />
-        <div className="absolute top-3 right-3">
-          <Badge className="bg-white/90 text-charcoal font-semibold">
-            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
-            {coach.rating}
-          </Badge>
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-smooth group overflow-hidden"
+          onClick={onClick}
+        >
+          <CardContent className="p-4">
+            <div className="flex gap-4">
+              <Avatar className="h-20 w-20 border-2 border-border">
+                <AvatarImage src={coach.image} alt={coach.name} />
+                <AvatarFallback>{coach.name.substring(0, 2)}</AvatarFallback>
+              </Avatar>
+              
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <h3 className="font-semibold text-base font-poppins truncate">
+                    {coach.name}
+                  </h3>
+                  <Badge variant="secondary" className="shrink-0 text-xs">
+                    {getSportIcon()} {coach.sport}
+                  </Badge>
+                </div>
+                
+                <p className="text-sm text-muted-foreground mb-2 font-montserrat truncate">
+                  {coach.specialization}
+                </p>
+                
+                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground font-montserrat">
+                  <div className="flex items-center gap-1">
+                    <Star className="h-3 w-3 fill-primary text-primary" />
+                    <span className="font-medium">{coach.rating}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    <span>{coach.city}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {getModeIcon()}
+                    <span className="capitalize">{coach.mode}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
+              <div className="text-sm text-muted-foreground font-montserrat">
+                {coach.experience} experience
+              </div>
+              <div className="font-semibold text-lg text-primary font-poppins">
+                ₹{coach.price}/hr
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </HoverCardTrigger>
+      <HoverCardContent className="w-80">
+        <div className="space-y-2">
+          <h4 className="text-sm font-semibold font-poppins">Specializes in:</h4>
+          <p className="text-sm text-muted-foreground font-montserrat">
+            {coach.specialization}
+          </p>
         </div>
-      </div>
-      
-      <CardContent className="p-5 space-y-3">
-        <div>
-          <h3 className="font-semibold text-lg font-poppins mb-1">{coach.name}</h3>
-          <p className="text-sm text-muted-foreground font-montserrat">{coach.specialization}</p>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="secondary" className="font-montserrat">
-            {coach.sport}
-          </Badge>
-          <Badge variant="outline" className="font-montserrat">
-            {getModeIcon()}
-            <span className="ml-1">{coach.mode}</span>
-          </Badge>
-        </div>
-
-        <div className="flex items-center justify-between pt-2 border-t">
-          <div className="flex items-center text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4 mr-1" />
-            {coach.city}
-          </div>
-          <div className="text-lg font-bold text-primary font-poppins">
-            ₹{coach.price}
-            <span className="text-sm font-normal text-muted-foreground">/session</span>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+      </HoverCardContent>
+    </HoverCard>
   );
 };
 
