@@ -10,9 +10,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { AddRoleDialog } from "@/components/AddRoleDialog";
 import { z } from "zod";
 
-// Input validation schemas
-const emailSchema = z.string().trim().email("Invalid email address").max(255, "Email too long");
-const passwordSchema = z.string().min(8, "Password must be at least 8 characters").max(128, "Password too long");
+// Input validation schemas with normalization
+const emailSchema = z.string()
+  .trim()
+  .toLowerCase()
+  .email("Invalid email address")
+  .max(255, "Email too long");
+
+const passwordSchema = z.string()
+  .trim()
+  .min(8, "Password must be at least 8 characters")
+  .max(128, "Password too long");
+
 const signupSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
@@ -145,7 +154,7 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      // Validate input
+      // Validate and normalize input
       const validation = signupSchema.safeParse({
         email: formData.email,
         password: formData.password,
@@ -160,6 +169,9 @@ const Auth = () => {
         return;
       }
 
+      // Clear any existing session before signup
+      await supabase.auth.signOut();
+
       const { data, error } = await supabase.auth.signUp({
         email: validation.data.email,
         password: validation.data.password,
@@ -168,7 +180,19 @@ const Auth = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Handle specific error cases
+        if (error.message.includes("User already registered") || error.status === 422) {
+          toast.error("This email is already registered. Try logging in instead.");
+          setTimeout(() => {
+            setIsLogin(true);
+            setFormData({ ...formData, email: validation.data.email });
+          }, 1500);
+          return;
+        }
+        throw error;
+      }
+
       if (!data.user) throw new Error("Signup failed");
 
       // Insert role
@@ -183,7 +207,15 @@ const Auth = () => {
       await routeAfterAuth(pendingRole);
     } catch (error: any) {
       if (import.meta.env.DEV) console.error("Signup error:", error);
-      toast.error("Signup failed. Please try again.");
+      
+      // Provide specific error messages
+      if (error.message?.includes("Password")) {
+        toast.error("Password must be at least 8 characters.");
+      } else if (error.message?.includes("email")) {
+        toast.error("Invalid email address.");
+      } else {
+        toast.error("Signup failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -328,7 +360,7 @@ const Auth = () => {
                   type="email"
                   placeholder="you@example.com"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value.trim().toLowerCase() })}
                   required
                   className="bg-[#0D0D0D] border-[#FF6B00]/30 text-white placeholder:text-[#D0D0D0]/50"
                 />
@@ -341,10 +373,14 @@ const Auth = () => {
                   type="password"
                   placeholder="••••••••"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value.trim() })}
                   required
+                  minLength={8}
                   className="bg-[#0D0D0D] border-[#FF6B00]/30 text-white"
                 />
+                {!isLogin && formData.password && formData.password.length < 8 && (
+                  <p className="text-sm text-red-400">Password must be at least 8 characters</p>
+                )}
               </div>
 
               {!isLogin && (
