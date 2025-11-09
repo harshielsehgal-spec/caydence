@@ -34,6 +34,7 @@ import AthletePlaylists from "./pages/AthletePlaylists";
 import AthleteChallenges from "./pages/AthleteChallenges";
 import Community from "./pages/Community";
 import NotFound from "./pages/NotFound";
+import DevCleanup from "./pages/DevCleanup";
 
 const queryClient = new QueryClient();
 
@@ -81,6 +82,9 @@ const App = () => (
           
           {/* Community Route */}
           <Route path="/community" element={<Community />} />
+          
+          {/* Dev Tools (DEV ONLY) */}
+          <Route path="/dev-cleanup" element={<DevCleanup />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
