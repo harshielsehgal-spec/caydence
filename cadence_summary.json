@@ -1,0 +1,492 @@
+{
+  "project_name": "Cadence - Sports Coaching Platform",
+  "description": "A comprehensive sports coaching platform connecting athletes with verified coaches across multiple sports disciplines",
+  "tech_stack": {
+    "frontend": "React + TypeScript + Vite",
+    "styling": "Tailwind CSS + shadcn/ui",
+    "backend": "Supabase (via Lovable Cloud)",
+    "state_management": "TanStack React Query",
+    "routing": "React Router v6"
+  },
+  "routes": {
+    "public": [
+      {
+        "path": "/",
+        "component": "Landing",
+        "description": "Landing page with hero section and features"
+      },
+      {
+        "path": "/auth",
+        "component": "Auth",
+        "description": "Authentication page for login/signup with role selection"
+      },
+      {
+        "path": "/sport-selection",
+        "component": "SportSelection",
+        "description": "Sport selection screen for athletes"
+      },
+      {
+        "path": "/skill-mode",
+        "component": "SkillMode",
+        "description": "Skill level and training preferences setup"
+      }
+    ],
+    "athlete": [
+      {
+        "path": "/coach-swipe",
+        "component": "CoachSwipe",
+        "description": "Tinder-style coach discovery interface"
+      },
+      {
+        "path": "/marketplace",
+        "component": "Marketplace",
+        "description": "Browse and filter coaches marketplace"
+      },
+      {
+        "path": "/coach/:id",
+        "component": "CoachProfile",
+        "description": "Detailed coach profile view"
+      },
+      {
+        "path": "/video-upload",
+        "component": "VideoUpload",
+        "description": "Upload video for AI motion analysis"
+      },
+      {
+        "path": "/motion-analysis",
+        "component": "MotionAnalysis",
+        "description": "AI-powered motion analysis results"
+      },
+      {
+        "path": "/compare-view",
+        "component": "CompareView",
+        "description": "Compare athlete performance with pros"
+      },
+      {
+        "path": "/session-booking",
+        "component": "SessionBooking",
+        "description": "Book training sessions with coaches"
+      },
+      {
+        "path": "/ai-insights",
+        "component": "AIInsights",
+        "description": "AI-generated training insights"
+      },
+      {
+        "path": "/dashboard",
+        "component": "Dashboard",
+        "description": "Athlete dashboard with progress tracking"
+      },
+      {
+        "path": "/profile",
+        "component": "Profile",
+        "description": "User profile management"
+      },
+      {
+        "path": "/athlete/reports",
+        "component": "AthleteReports",
+        "description": "View training reports and analysis"
+      },
+      {
+        "path": "/athlete/reports/:id",
+        "component": "AthleteReportDetail",
+        "description": "Detailed view of specific report"
+      },
+      {
+        "path": "/athlete/skill-map",
+        "component": "AthleteSkillMap",
+        "description": "Visual skill progression map"
+      },
+      {
+        "path": "/athlete/playlists",
+        "component": "AthletePlaylists",
+        "description": "Training video playlists"
+      },
+      {
+        "path": "/athlete/challenges",
+        "component": "AthleteChallenges",
+        "description": "Training challenges and goals"
+      }
+    ],
+    "coach": [
+      {
+        "path": "/coach/onboarding",
+        "component": "CoachOnboarding",
+        "description": "Coach profile setup and onboarding"
+      },
+      {
+        "path": "/coach/home",
+        "component": "CoachHome",
+        "description": "Coach dashboard home"
+      },
+      {
+        "path": "/coach/offers",
+        "component": "CoachOffers",
+        "description": "Manage training offers and packages"
+      },
+      {
+        "path": "/coach/calendar",
+        "component": "CoachCalendar",
+        "description": "Session scheduling and availability"
+      },
+      {
+        "path": "/coach/sessions",
+        "component": "CoachSessions",
+        "description": "Manage booked sessions"
+      },
+      {
+        "path": "/coach/masterclasses",
+        "component": "CoachMasterclasses",
+        "description": "Create and manage masterclasses"
+      },
+      {
+        "path": "/coach/leaderboard",
+        "component": "CoachLeaderboard",
+        "description": "Coach rankings and performance"
+      },
+      {
+        "path": "/coach/analytics",
+        "component": "CoachAnalytics",
+        "description": "Performance analytics dashboard"
+      },
+      {
+        "path": "/coach/messages",
+        "component": "CoachMessages",
+        "description": "Message athletes and manage communications"
+      },
+      {
+        "path": "/coach/revenue",
+        "component": "CoachRevenue",
+        "description": "Revenue tracking and financial analytics"
+      }
+    ],
+    "shared": [
+      {
+        "path": "/community",
+        "component": "Community",
+        "description": "Community features for all users"
+      }
+    ],
+    "utility": [
+      {
+        "path": "/dev-cleanup",
+        "component": "DevCleanup",
+        "description": "Development utility for clearing auth caches"
+      },
+      {
+        "path": "*",
+        "component": "NotFound",
+        "description": "404 page"
+      }
+    ]
+  },
+  "authentication": {
+    "provider": "Supabase Auth",
+    "flows": {
+      "signup": {
+        "endpoint": "supabase.auth.signUp",
+        "fields": ["email", "password"],
+        "validation": "Zod schemas (emailSchema, passwordSchema, signupSchema)",
+        "options": {
+          "emailRedirectTo": "window.location.origin",
+          "data": {
+            "role": "athlete | coach"
+          }
+        },
+        "post_signup": "Insert role into user_roles table"
+      },
+      "login": {
+        "endpoint": "supabase.auth.signInWithPassword",
+        "fields": ["email", "password"],
+        "validation": "Zod schemas",
+        "role_check": "Query user_roles table to determine athlete/coach routing"
+      },
+      "logout": {
+        "endpoint": "supabase.auth.signOut",
+        "cleanup": "Clear localStorage, sessionStorage, IndexedDB"
+      },
+      "session_management": {
+        "listener": "supabase.auth.onAuthStateChange",
+        "storage": "localStorage",
+        "auto_refresh": true
+      }
+    },
+    "role_system": {
+      "table": "user_roles",
+      "roles": ["athlete", "coach"],
+      "helper_function": "has_role(user_id, role)"
+    }
+  },
+  "database_schema": {
+    "tables": [
+      {
+        "name": "user_roles",
+        "columns": [
+          {"name": "id", "type": "uuid", "nullable": false, "default": "gen_random_uuid()"},
+          {"name": "user_id", "type": "uuid", "nullable": false},
+          {"name": "role", "type": "app_role", "nullable": false},
+          {"name": "created_at", "type": "timestamp with time zone", "nullable": true, "default": "now()"}
+        ],
+        "rls_policies": [
+          "Users can insert their own roles on signup",
+          "Users can view their own roles"
+        ]
+      },
+      {
+        "name": "coaches",
+        "columns": [
+          {"name": "id", "type": "uuid", "nullable": false, "default": "gen_random_uuid()"},
+          {"name": "user_id", "type": "uuid", "nullable": false},
+          {"name": "name", "type": "text", "nullable": false},
+          {"name": "photo_url", "type": "text", "nullable": true},
+          {"name": "bio", "type": "text", "nullable": true},
+          {"name": "sports", "type": "text[]", "nullable": false, "default": "{}"},
+          {"name": "cities", "type": "text[]", "nullable": false, "default": "{}"},
+          {"name": "languages", "type": "text[]", "nullable": false, "default": "{}"},
+          {"name": "mode", "type": "text[]", "nullable": false, "default": "{}"},
+          {"name": "years_experience", "type": "integer", "nullable": true, "default": 0},
+          {"name": "per_session_fee", "type": "integer", "nullable": true, "default": 0},
+          {"name": "rating", "type": "numeric", "nullable": true, "default": 0},
+          {"name": "reviews_count", "type": "integer", "nullable": true, "default": 0},
+          {"name": "verified", "type": "boolean", "nullable": true, "default": false},
+          {"name": "setup_complete", "type": "boolean", "nullable": false, "default": false},
+          {"name": "created_at", "type": "timestamp with time zone", "nullable": true, "default": "now()"},
+          {"name": "updated_at", "type": "timestamp with time zone", "nullable": true, "default": "now()"}
+        ],
+        "rls_policies": [
+          "Authenticated users can view coach profiles",
+          "Users with coach role can insert their profile",
+          "Users with coach role can update their profile"
+        ]
+      },
+      {
+        "name": "coach_availability",
+        "columns": [
+          {"name": "id", "type": "uuid", "nullable": false, "default": "gen_random_uuid()"},
+          {"name": "coach_id", "type": "uuid", "nullable": false},
+          {"name": "weekday", "type": "integer", "nullable": false},
+          {"name": "start_time", "type": "time without time zone", "nullable": false},
+          {"name": "end_time", "type": "time without time zone", "nullable": false},
+          {"name": "created_at", "type": "timestamp with time zone", "nullable": false, "default": "now()"},
+          {"name": "updated_at", "type": "timestamp with time zone", "nullable": false, "default": "now()"}
+        ],
+        "rls_policies": [
+          "Everyone can view coach availability",
+          "Coaches can insert their own availability",
+          "Coaches can update their own availability",
+          "Coaches can delete their own availability"
+        ]
+      },
+      {
+        "name": "offers",
+        "columns": [
+          {"name": "id", "type": "uuid", "nullable": false, "default": "gen_random_uuid()"},
+          {"name": "coach_id", "type": "uuid", "nullable": false},
+          {"name": "title", "type": "text", "nullable": false},
+          {"name": "description", "type": "text", "nullable": true},
+          {"name": "sport", "type": "text", "nullable": false},
+          {"name": "level", "type": "text", "nullable": false},
+          {"name": "mode", "type": "text[]", "nullable": false, "default": "{}"},
+          {"name": "duration_min", "type": "integer", "nullable": false, "default": 60},
+          {"name": "price_inr", "type": "integer", "nullable": false, "default": 0},
+          {"name": "slots_per_week", "type": "integer", "nullable": false, "default": 1},
+          {"name": "includes_ai_check", "type": "boolean", "nullable": false, "default": false},
+          {"name": "status", "type": "text", "nullable": false, "default": "draft"},
+          {"name": "attachments", "type": "text[]", "nullable": true},
+          {"name": "created_at", "type": "timestamp with time zone", "nullable": false, "default": "now()"},
+          {"name": "updated_at", "type": "timestamp with time zone", "nullable": false, "default": "now()"}
+        ],
+        "rls_policies": [
+          "Authenticated users can view offers",
+          "Coaches can insert their own offers",
+          "Coaches can update their own offers",
+          "Coaches can delete their own offers"
+        ]
+      },
+      {
+        "name": "sessions",
+        "columns": [
+          {"name": "id", "type": "uuid", "nullable": false, "default": "gen_random_uuid()"},
+          {"name": "coach_id", "type": "uuid", "nullable": false},
+          {"name": "athlete_id", "type": "uuid", "nullable": false},
+          {"name": "offer_id", "type": "uuid", "nullable": false},
+          {"name": "start_time", "type": "timestamp with time zone", "nullable": false},
+          {"name": "end_time", "type": "timestamp with time zone", "nullable": false},
+          {"name": "mode", "type": "text", "nullable": false},
+          {"name": "status", "type": "text", "nullable": false, "default": "pending"},
+          {"name": "athlete_notes", "type": "text", "nullable": true},
+          {"name": "coach_decline_reason", "type": "text", "nullable": true},
+          {"name": "created_at", "type": "timestamp with time zone", "nullable": false, "default": "now()"},
+          {"name": "updated_at", "type": "timestamp with time zone", "nullable": false, "default": "now()"}
+        ],
+        "rls_policies": [
+          "Athletes can create session requests",
+          "Athletes can view their own sessions",
+          "Athletes can update their own sessions",
+          "Coaches can view their sessions",
+          "Coaches can update their sessions"
+        ]
+      },
+      {
+        "name": "masterclasses",
+        "columns": [
+          {"name": "id", "type": "uuid", "nullable": false, "default": "gen_random_uuid()"},
+          {"name": "coach_id", "type": "uuid", "nullable": false},
+          {"name": "title", "type": "text", "nullable": false},
+          {"name": "description", "type": "text", "nullable": true},
+          {"name": "sport", "type": "text", "nullable": false},
+          {"name": "mode", "type": "text", "nullable": false},
+          {"name": "duration_min", "type": "integer", "nullable": false, "default": 60},
+          {"name": "price_inr", "type": "integer", "nullable": false, "default": 0},
+          {"name": "seats", "type": "integer", "nullable": false, "default": 30},
+          {"name": "enrolled_count", "type": "integer", "nullable": false, "default": 0},
+          {"name": "scheduled_at", "type": "timestamp with time zone", "nullable": true},
+          {"name": "video_url", "type": "text", "nullable": true},
+          {"name": "trailer_url", "type": "text", "nullable": true},
+          {"name": "tags", "type": "text[]", "nullable": true, "default": "{}"},
+          {"name": "status", "type": "text", "nullable": false, "default": "draft"},
+          {"name": "rating", "type": "numeric", "nullable": true, "default": 0},
+          {"name": "created_at", "type": "timestamp with time zone", "nullable": false, "default": "now()"},
+          {"name": "updated_at", "type": "timestamp with time zone", "nullable": false, "default": "now()"}
+        ],
+        "rls_policies": [
+          "Everyone can view published masterclasses",
+          "Coaches can insert their own masterclasses",
+          "Coaches can update their own masterclasses",
+          "Coaches can delete their own masterclasses"
+        ]
+      },
+      {
+        "name": "masterclass_enrollments",
+        "columns": [
+          {"name": "id", "type": "uuid", "nullable": false, "default": "gen_random_uuid()"},
+          {"name": "masterclass_id", "type": "uuid", "nullable": false},
+          {"name": "athlete_id", "type": "uuid", "nullable": false},
+          {"name": "payment_status", "type": "text", "nullable": false, "default": "pending"},
+          {"name": "payment_amount", "type": "integer", "nullable": false, "default": 0},
+          {"name": "enrolled_at", "type": "timestamp with time zone", "nullable": false, "default": "now()"}
+        ],
+        "rls_policies": [
+          "Athletes can view their own enrollments",
+          "Athletes can enroll in masterclasses",
+          "Coaches can view enrollments for their masterclasses"
+        ]
+      },
+      {
+        "name": "coach_analytics",
+        "columns": [
+          {"name": "id", "type": "uuid", "nullable": false, "default": "gen_random_uuid()"},
+          {"name": "coach_id", "type": "uuid", "nullable": false},
+          {"name": "sport", "type": "text", "nullable": false},
+          {"name": "week_start", "type": "date", "nullable": false},
+          {"name": "bookings_count", "type": "integer", "nullable": false, "default": 0},
+          {"name": "revenue_inr", "type": "integer", "nullable": false, "default": 0},
+          {"name": "masterclass_views", "type": "integer", "nullable": false, "default": 0},
+          {"name": "avg_form_score", "type": "numeric", "nullable": true, "default": 0},
+          {"name": "created_at", "type": "timestamp with time zone", "nullable": false, "default": "now()"}
+        ],
+        "rls_policies": [
+          "Coaches can view their own analytics",
+          "System can insert analytics",
+          "System can update analytics"
+        ]
+      }
+    ],
+    "database_functions": [
+      {
+        "name": "has_role",
+        "parameters": ["_user_id uuid", "_role app_role"],
+        "returns": "boolean",
+        "description": "Helper function to check if a user has a specific role"
+      },
+      {
+        "name": "calculate_coach_leaderboard",
+        "parameters": ["sport_filter text DEFAULT NULL"],
+        "returns": "TABLE(coach_id uuid, coach_name text, coach_photo_url text, sport text, rank bigint, total_bookings bigint, avg_rating numeric, masterclass_views bigint, score numeric)",
+        "description": "Calculates coach rankings based on bookings, ratings, and views"
+      },
+      {
+        "name": "update_updated_at_column",
+        "returns": "trigger",
+        "description": "Trigger function to automatically update updated_at timestamp"
+      }
+    ],
+    "custom_types": [
+      {
+        "name": "app_role",
+        "type": "enum",
+        "values": ["athlete", "coach"]
+      }
+    ]
+  },
+  "key_components": {
+    "ui_components": [
+      "CoachCard - Display coach profile cards with ratings and specializations",
+      "SwipeCard - Tinder-style swipeable coach cards",
+      "CoachSidebar - Navigation sidebar for coach dashboard",
+      "AthleteBottomNav - Bottom navigation for athlete mobile view",
+      "RoleSwitch - Toggle between athlete and coach roles",
+      "SessionRunner - Manage live training sessions",
+      "TryAnalysisWidget - Video analysis preview widget",
+      "SubscriptionModal - Subscription and payment modal",
+      "AddRoleDialog - Dialog for adding additional user roles",
+      "MessageTemplateModal - Reusable message templates",
+      "OfferFormModal - Create/edit training offers",
+      "MasterclassFormModal - Create/edit masterclasses",
+      "DrillSuggestionsModal - AI-suggested drill recommendations",
+      "CoachAICoPilot - AI assistant for coaches",
+      "CoachChipPanel - Filter chips for coach categories",
+      "CombinedReportCard - Athlete performance report display",
+      "SportCard - Sport selection cards"
+    ],
+    "shadcn_components": [
+      "button", "card", "dialog", "dropdown-menu", "input", "label",
+      "select", "textarea", "toast", "toaster", "tooltip", "tabs",
+      "accordion", "alert", "alert-dialog", "avatar", "badge", "calendar",
+      "carousel", "chart", "checkbox", "collapsible", "command",
+      "context-menu", "drawer", "form", "hover-card", "menubar",
+      "navigation-menu", "pagination", "popover", "progress", "radio-group",
+      "resizable", "scroll-area", "separator", "sheet", "sidebar",
+      "skeleton", "slider", "sonner", "switch", "table", "toggle",
+      "toggle-group"
+    ]
+  },
+  "hooks": {
+    "custom": [
+      "useUserRole - Get current user role (athlete/coach)",
+      "use-mobile - Detect mobile viewport",
+      "use-toast - Toast notification management"
+    ]
+  },
+  "environment_variables": {
+    "keys": [
+      "VITE_SUPABASE_URL",
+      "VITE_SUPABASE_PUBLISHABLE_KEY",
+      "VITE_SUPABASE_PROJECT_ID"
+    ],
+    "backend_secrets": [
+      "SUPABASE_URL",
+      "SUPABASE_PUBLISHABLE_KEY",
+      "SUPABASE_SERVICE_ROLE_KEY",
+      "SUPABASE_DB_URL"
+    ]
+  },
+  "edge_functions": [],
+  "state_management": {
+    "queries": "TanStack React Query for server state",
+    "local_state": "React useState hooks",
+    "auth_state": "Supabase auth listener with localStorage persistence"
+  },
+  "key_features": [
+    "Dual-role system (Athlete & Coach)",
+    "AI-powered motion analysis",
+    "Tinder-style coach discovery",
+    "Real-time session booking",
+    "Masterclass creation and enrollment",
+    "Coach analytics and leaderboard",
+    "Multi-sport support (Football, Cricket, Basketball, Tennis, Badminton)",
+    "Revenue tracking for coaches",
+    "Athlete progress reports",
+    "Community features"
+  ]
+}

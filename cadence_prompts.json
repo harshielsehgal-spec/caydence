@@ -1,0 +1,358 @@
+{
+  "note": "This file contains reconstructed prompts based on the current codebase structure. Historical prompts from the actual development process are not available.",
+  "screens": {
+    "landing_page": {
+      "screen": "Landing",
+      "route": "/",
+      "prompts": [
+        {
+          "purpose": "Create hero section",
+          "prompt": "Create a landing page with a hero section featuring a large background image (hero-athlete.jpg), gradient overlay, compelling headline 'Transform Your Game with Expert Coaching', and CTA buttons for 'Get Started' and 'Login'. Include navigation to /auth route."
+        },
+        {
+          "purpose": "Add features section",
+          "prompt": "Add a features section below the hero with three key features: 'Verified Coaches', 'AI Motion Analysis', and 'Track Progress'. Each feature should have an icon (Trophy, Activity, BarChart), title, description, and hover effects."
+        }
+      ]
+    },
+    "auth_page": {
+      "screen": "Auth",
+      "route": "/auth",
+      "prompts": [
+        {
+          "purpose": "Implement dual-role authentication",
+          "prompt": "Create an authentication page with two steps: 1) Role selection (athlete or coach with visual cards), 2) Email/password login and signup forms. Use Zod for validation. Include email normalization (trim, lowercase), password strength requirements. After signup, insert user role into user_roles table. Route athletes to /sport-selection and coaches to /coach/onboarding after authentication."
+        },
+        {
+          "purpose": "Add role switching capability",
+          "prompt": "Add AddRoleDialog component to handle cases where users want to add a second role (e.g., existing athlete wants to become a coach). Show dialog if user tries to sign up with existing email but different role."
+        }
+      ]
+    },
+    "sport_selection": {
+      "screen": "SportSelection",
+      "route": "/sport-selection",
+      "prompts": [
+        {
+          "purpose": "Create sport selection interface",
+          "prompt": "Create a sport selection screen with cards for Football, Cricket, Basketball, Tennis, Badminton, and Fitness. Each SportCard should have an icon, gradient background, sport name, and short description. Save selected sport to localStorage and navigate to /skill-mode for athletes or /coach/home for coaches."
+        }
+      ]
+    },
+    "skill_mode": {
+      "screen": "SkillMode",
+      "route": "/skill-mode",
+      "prompts": [
+        {
+          "purpose": "Athlete preferences setup",
+          "prompt": "Create a skill mode selection page where athletes choose: 1) Skill level (Beginner/Intermediate/Advanced via Select dropdown), 2) Training mode (Online/Offline/Hybrid via toggle buttons), 3) Budget (₹500-5000 via Slider). Include 'Back' and 'Find Coaches' buttons. Disable 'Find Coaches' until skill and mode are selected. Navigate to /coach-swipe with preferences."
+        }
+      ]
+    },
+    "coach_swipe": {
+      "screen": "CoachSwipe",
+      "route": "/coach-swipe",
+      "prompts": [
+        {
+          "purpose": "Tinder-style coach discovery",
+          "prompt": "Create a Tinder-style swipeable interface for coach discovery. Display coach cards with photo, name, rating, sport, specialization, and price. Implement swipe gestures: swipe right to like, swipe left to pass. Show action buttons for 'Pass' and 'Connect'. Filter coaches by selected sport from route state."
+        },
+        {
+          "purpose": "Add diverse coach profiles",
+          "prompt": "Expand and diversify coach profiles across multiple sports. Add sportTag field to Coach model. Create 25 unique coaches with 5 per sport (Football, Cricket, Basketball, Tennis, Badminton). Each coach should have unique name, city, rating, price, and bio with specialization. Add visual sport tags with emoji icons (⚽🏏🏀🎾🏸)."
+        }
+      ]
+    },
+    "marketplace": {
+      "screen": "Marketplace",
+      "route": "/marketplace",
+      "prompts": [
+        {
+          "purpose": "Coach browsing and filtering",
+          "prompt": "Create a marketplace page with coach grid layout. Add filter chips for sports (All, Football, Cricket, Basketball, Tennis, Badminton). Filter coaches by selected sport and sportTag. Display coaches in a responsive grid using CoachCard components. Include hover cards showing specialization details."
+        }
+      ]
+    },
+    "coach_profile": {
+      "screen": "CoachProfile",
+      "route": "/coach/:id",
+      "prompts": [
+        {
+          "purpose": "Detailed coach profile view",
+          "prompt": "Create a detailed coach profile page showing: profile photo, name, rating, years of experience, bio, sports, cities, languages, training modes, per session fee. Add tabs for 'About', 'Reviews', 'Availability'. Include 'Book Session' CTA button. Add back button for navigation."
+        }
+      ]
+    },
+    "video_upload": {
+      "screen": "VideoUpload",
+      "route": "/video-upload",
+      "prompts": [
+        {
+          "purpose": "Video upload interface for AI analysis",
+          "prompt": "Create a video upload page with: 1) File input for video selection (accept video/* only), 2) Video preview player when file is selected, 3) 'Analyze My Form' button to navigate to /motion-analysis, 4) Features grid highlighting 'AI Powered', 'Instant Feedback', 'Expert Comparison', 5) 'How it works' section with 3 steps. Add validation to ensure only video files are accepted."
+        }
+      ]
+    },
+    "motion_analysis": {
+      "screen": "MotionAnalysis",
+      "route": "/motion-analysis",
+      "prompts": [
+        {
+          "purpose": "Display AI motion analysis results",
+          "prompt": "Create a motion analysis results page showing: video playback with frame-by-frame controls, AI-generated form score (0-100), key metrics (body alignment, movement efficiency, timing, balance), detailed feedback sections for strengths and areas to improve, and comparison with professional athletes. Include 'Compare with Pro' button to navigate to /compare-view."
+        }
+      ]
+    },
+    "compare_view": {
+      "screen": "CompareView",
+      "route": "/compare-view",
+      "prompts": [
+        {
+          "purpose": "Side-by-side video comparison",
+          "prompt": "Create a comparison view with side-by-side video players: user's video on left, professional athlete video on right. Add synchronized playback controls, frame-by-frame stepping, metric comparison cards, and key differences highlighting. Include 'Get Coaching' CTA to connect with coaches."
+        }
+      ]
+    },
+    "session_booking": {
+      "screen": "SessionBooking",
+      "route": "/session-booking",
+      "prompts": [
+        {
+          "purpose": "Book training sessions",
+          "prompt": "Create a session booking page with: coach selection, date/time picker with available slots, training mode selection (Online/Offline/Hybrid), duration selector, special notes textarea. Validate athlete_id and coach_id. Insert booking into sessions table with 'pending' status. Show confirmation toast and navigate to /dashboard."
+        }
+      ]
+    },
+    "ai_insights": {
+      "screen": "AIInsights",
+      "route": "/ai-insights",
+      "prompts": [
+        {
+          "purpose": "AI-generated training insights",
+          "prompt": "Create an AI insights dashboard showing: personalized training recommendations, skill progression charts, weakness identification, suggested drills, and performance predictions. Use recharts for data visualization. Display insights in card-based layout with icons."
+        }
+      ]
+    },
+    "dashboard": {
+      "screen": "Dashboard",
+      "route": "/dashboard",
+      "prompts": [
+        {
+          "purpose": "Athlete dashboard overview",
+          "prompt": "Create athlete dashboard with: upcoming sessions calendar, recent analysis reports, progress metrics, training streak, skill level progression chart, quick actions (Upload Video, Book Session, View Reports). Use tabs for different dashboard sections."
+        }
+      ]
+    },
+    "profile": {
+      "screen": "Profile",
+      "route": "/profile",
+      "prompts": [
+        {
+          "purpose": "User profile management",
+          "prompt": "Create profile page with editable fields: profile photo, name, email (readonly), sport preferences, training goals, bio. Add 'Save Changes' button. Include logout button. Show current user role badge. Allow role switching via RoleSwitch component."
+        }
+      ]
+    },
+    "coach_onboarding": {
+      "screen": "CoachOnboarding",
+      "route": "/coach/onboarding",
+      "prompts": [
+        {
+          "purpose": "Coach profile setup",
+          "prompt": "Create multi-step coach onboarding with: 1) Basic info (name, photo, bio), 2) Specialization (sports, cities, languages), 3) Experience (years, certifications), 4) Pricing (per session fee), 5) Training modes (Online/Offline/Hybrid). Use Zod validation. Upsert to coaches table using user_id. Set setup_complete=true on completion. Navigate to /coach/home."
+        }
+      ]
+    },
+    "coach_home": {
+      "screen": "CoachHome",
+      "route": "/coach/home",
+      "prompts": [
+        {
+          "purpose": "Coach dashboard home",
+          "prompt": "Create coach dashboard with: session requests (pending/upcoming), quick stats (today's sessions, total bookings, average rating, monthly revenue), recent activity feed, quick actions (Create Offer, Add Availability, View Calendar). Include CoachSidebar for navigation."
+        }
+      ]
+    },
+    "coach_offers": {
+      "screen": "CoachOffers",
+      "route": "/coach/offers",
+      "prompts": [
+        {
+          "purpose": "Manage training offers",
+          "prompt": "Create offers management page with: list of existing offers (draft/published status), 'Create New Offer' button opening OfferFormModal. Each offer card shows title, sport, level, mode, duration, price, slots/week, AI check inclusion. Allow edit/delete/publish actions. Query offers table filtered by coach_id."
+        }
+      ]
+    },
+    "coach_calendar": {
+      "screen": "CoachCalendar",
+      "route": "/coach/calendar",
+      "prompts": [
+        {
+          "purpose": "Session scheduling and availability",
+          "prompt": "Create calendar view with: monthly calendar showing booked sessions, availability time slots, drag-and-drop session rescheduling. Add 'Set Availability' modal to define weekly recurring availability slots (weekday, start_time, end_time). Store in coach_availability table. Display confirmed, pending, and blocked time slots with different colors."
+        }
+      ]
+    },
+    "coach_sessions": {
+      "screen": "CoachSessions",
+      "route": "/coach/sessions",
+      "prompts": [
+        {
+          "purpose": "Manage booked sessions",
+          "prompt": "Create sessions management page with tabs: 'Pending Requests', 'Upcoming', 'Completed', 'Cancelled'. Display session cards with athlete info, date/time, mode, offer details, athlete notes. For pending: add 'Accept' and 'Decline' buttons (with reason textarea). Update sessions table status. Include SessionRunner component for live sessions."
+        }
+      ]
+    },
+    "coach_masterclasses": {
+      "screen": "CoachMasterclasses",
+      "route": "/coach/masterclasses",
+      "prompts": [
+        {
+          "purpose": "Create and manage masterclasses",
+          "prompt": "Create masterclasses page with: list of created masterclasses (draft/published), 'Create Masterclass' button opening MasterclassFormModal. Each masterclass card shows title, sport, mode, duration, price, seats, enrolled count, scheduled date, video/trailer URLs, tags, status, rating. Allow edit/delete/publish. Query masterclasses table filtered by coach_id."
+        }
+      ]
+    },
+    "coach_leaderboard": {
+      "screen": "CoachLeaderboard",
+      "route": "/coach/leaderboard",
+      "prompts": [
+        {
+          "purpose": "Coach rankings and performance",
+          "prompt": "Create leaderboard page showing top coaches ranked by score (bookings * 10 + rating * 20 + masterclass_views * 5). Use calculate_coach_leaderboard() RPC function. Add sport filter dropdown (All/Football/Cricket/Basketball/Tennis/Badminton). Display rank, coach name, photo, sport, total bookings, avg rating, masterclass views, total score. Highlight current user's position."
+        }
+      ]
+    },
+    "coach_analytics": {
+      "screen": "CoachAnalytics",
+      "route": "/coach/analytics",
+      "prompts": [
+        {
+          "purpose": "Performance analytics dashboard",
+          "prompt": "Create analytics dashboard with: revenue trends chart (weekly/monthly), bookings count chart, sport-wise performance breakdown, average form scores, masterclass view metrics, athlete retention rate. Use recharts for visualization. Query coach_analytics table filtered by coach_id. Add date range selector."
+        }
+      ]
+    },
+    "coach_messages": {
+      "screen": "CoachMessages",
+      "route": "/coach/messages",
+      "prompts": [
+        {
+          "purpose": "Message athletes and templates",
+          "prompt": "Create messaging interface with: conversation list showing athletes, message thread view, send message input, message template library via MessageTemplateModal. Display unread count badges. Include quick replies for common messages. Add search and filter for conversations."
+        }
+      ]
+    },
+    "coach_revenue": {
+      "screen": "CoachRevenue",
+      "route": "/coach/revenue",
+      "prompts": [
+        {
+          "purpose": "Revenue tracking and financial analytics",
+          "prompt": "Create revenue page with: total earnings summary, revenue breakdown by sport, payment status (pending/completed/failed), payout history, earnings forecast. Display line chart for revenue trends over time. Add filters for date range and sport. Show transaction details table."
+        }
+      ]
+    },
+    "athlete_reports": {
+      "screen": "AthleteReports",
+      "route": "/athlete/reports",
+      "prompts": [
+        {
+          "purpose": "View training reports list",
+          "prompt": "Create reports list page showing: all analysis reports with date, sport, overall score, thumbnail preview. Sort by most recent first. Each report card is clickable to navigate to /athlete/reports/:id for detailed view. Add filter by sport and date range. Include 'Latest Report' quick link."
+        }
+      ]
+    },
+    "athlete_report_detail": {
+      "screen": "AthleteReportDetail",
+      "route": "/athlete/reports/:id",
+      "prompts": [
+        {
+          "purpose": "Detailed report view",
+          "prompt": "Create detailed report page using CombinedReportCard component. Show: video playback, overall form score with progress ring, metric breakdown (body alignment, movement efficiency, timing, balance), strengths list, areas to improve, coach recommendations, comparison with previous reports, suggested drills. Add 'Share Report' and 'Book Coach' CTAs."
+        }
+      ]
+    },
+    "athlete_skill_map": {
+      "screen": "AthleteSkillMap",
+      "route": "/athlete/skill-map",
+      "prompts": [
+        {
+          "purpose": "Visual skill progression map",
+          "prompt": "Create interactive skill map showing: skill tree visualization with completed and locked skills, progress bars for each skill category, achievement badges, milestone markers. Use spider/radar chart for multi-dimensional skill assessment. Add drill suggestions for improving weak skills via DrillSuggestionsModal."
+        }
+      ]
+    },
+    "athlete_playlists": {
+      "screen": "AthletePlaylists",
+      "route": "/athlete/playlists",
+      "prompts": [
+        {
+          "purpose": "Training video playlists",
+          "prompt": "Create playlists page with: curated training video collections, custom playlists, 'Create Playlist' button, video thumbnails with duration and title, play button, add/remove videos, playlist sharing. Organize by categories: Fundamentals, Advanced Techniques, Pro Tips, Coach Masterclasses."
+        }
+      ]
+    },
+    "athlete_challenges": {
+      "screen": "AthleteChallenges",
+      "route": "/athlete/challenges",
+      "prompts": [
+        {
+          "purpose": "Training challenges and goals",
+          "prompt": "Create challenges page with: active challenges list, completed challenges, challenge leaderboard, 'Join Challenge' button. Each challenge card shows: title, description, difficulty, duration, participants count, reward/badge, progress bar. Include daily, weekly, and monthly challenges. Show completion status and achievement unlocks."
+        }
+      ]
+    },
+    "community": {
+      "screen": "Community",
+      "route": "/community",
+      "prompts": [
+        {
+          "purpose": "Community features for all users",
+          "prompt": "Create community page with: activity feed showing recent achievements, discussion forums by sport, success stories, training tips sharing, Q&A section. Allow users to post, comment, like. Display top contributors. Include tabs for 'Feed', 'Forums', 'Success Stories', 'Q&A'."
+        }
+      ]
+    },
+    "dev_cleanup": {
+      "screen": "DevCleanup",
+      "route": "/dev-cleanup",
+      "prompts": [
+        {
+          "purpose": "Development utility for cache clearing",
+          "prompt": "Create dev-only utility page with buttons to: 1) Clear localStorage, 2) Clear sessionStorage, 3) Delete all IndexedDB databases, 4) Sign out and clear all caches. Add confirmation dialogs. Display success toasts. Include warning that this is for development/testing only. Provide SQL snippets for cleaning up orphaned database records."
+        }
+      ]
+    }
+  },
+  "component_prompts": {
+    "CoachCard": {
+      "prompt": "Create a coach card component with hover effects showing: coach photo (Avatar), name, rating (stars), sport tag with emoji icon, specialization text (truncated), price per hour, verified badge. Add HoverCard on hover displaying full bio and specialization details. Use semantic tokens for styling."
+    },
+    "SwipeCard": {
+      "prompt": "Create swipeable card component with drag gestures. Show coach photo background with gradient overlay, name, sport, rating, specialization text. Implement swipe detection: right swipe for like (animate exit right), left swipe for pass (animate exit left). Add spring animations using CSS transforms."
+    },
+    "CoachSidebar": {
+      "prompt": "Create sidebar navigation for coach dashboard with menu items: Home, Offers, Calendar, Sessions, Masterclasses, Messages, Analytics, Revenue, Leaderboard, Profile. Highlight active route. Add collapse/expand functionality. Include logout button at bottom."
+    },
+    "AthleteBottomNav": {
+      "prompt": "Create bottom navigation bar for mobile with icons and labels: Dashboard, Reports, Discover, Community, Profile. Highlight active route. Use fixed positioning at bottom of viewport. Show badge counts for notifications."
+    },
+    "RoleSwitch": {
+      "prompt": "Create role toggle component allowing users with multiple roles to switch between athlete and coach views. Use Switch component. Update localStorage 'currentRole' and reload appropriate dashboard. Query user_roles to check available roles."
+    },
+    "TryAnalysisWidget": {
+      "prompt": "Create floating widget with 'Try AI Analysis' CTA, video icon, and pulse animation. Fixed position in bottom right. Clicking opens video upload modal or navigates to /video-upload. Dismissible with local storage preference."
+    },
+    "AddRoleDialog": {
+      "prompt": "Create dialog shown when user tries to signup with existing email but different role. Explain they're adding a new role to existing account. Show 'Add Role' button to insert additional role in user_roles table. On success, route to appropriate onboarding."
+    }
+  },
+  "validation_schemas": {
+    "auth": {
+      "prompt": "Create Zod schemas for authentication: emailSchema (email validation, trim, lowercase), passwordSchema (min 8 chars, regex for complexity), signupSchema (email + password). Use .transform() for normalization."
+    },
+    "coach_onboarding": {
+      "prompt": "Create Zod schema for coach profile: name (min 2 chars), photo_url (url or empty), bio (max 500 chars), sports (array min 1), cities (array min 1), languages (array min 1), years_experience (number min 0), per_session_fee (number min 0)."
+    }
+  }
+}
