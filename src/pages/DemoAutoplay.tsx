@@ -11,7 +11,7 @@ const DemoAutoplay = () => {
 
   // Parse screens from query params or use defaults
   const screensParam = searchParams.get("screens");
-  const defaultScreens = "/auth,/coach-swipe,/marketplace,/motion-analysis,/ai-insights,/dashboard,/athlete/skill-map";
+  const defaultScreens = "/coach-swipe,/marketplace,/motion-analysis,/ai-insights,/dashboard,/athlete/skill-map";
   const screens = (screensParam || defaultScreens).split(",").map(s => s.trim());
   
   const sport = searchParams.get("sport") || "Cricket";
