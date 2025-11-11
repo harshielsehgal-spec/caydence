@@ -34,8 +34,12 @@ const CoachSessions = () => {
 
   const fetchData = async () => {
     try {
+      // Check if in demo mode
+      const isDemoMode = window.location.pathname === "/demo-autoplay" || 
+                        new URLSearchParams(window.location.search).get("mode") === "demo";
+      
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      if (!user && !isDemoMode) {
         navigate("/auth");
         return;
       }
