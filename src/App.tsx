@@ -35,6 +35,7 @@ import AthleteChallenges from "./pages/AthleteChallenges";
 import Community from "./pages/Community";
 import NotFound from "./pages/NotFound";
 import DevCleanup from "./pages/DevCleanup";
+import DemoAutoplay from "./pages/DemoAutoplay";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +83,9 @@ const App = () => (
           
           {/* Community Route */}
           <Route path="/community" element={<Community />} />
+          
+          {/* Demo Route */}
+          <Route path="/demo-autoplay" element={<DemoAutoplay />} />
           
           {/* Dev Tools (DEV ONLY) */}
           <Route path="/dev-cleanup" element={<DevCleanup />} />
