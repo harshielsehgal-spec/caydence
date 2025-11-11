@@ -11,7 +11,7 @@ const DemoAutoplay = () => {
 
   // Parse screens from query params or use defaults
   const screensParam = searchParams.get("screens");
-  const defaultScreens = "/coach-swipe,/marketplace,/motion-analysis,/ai-insights,/dashboard,/athlete/skill-map";
+  const defaultScreens = "/marketplace,/motion-analysis,/ai-insights,/dashboard";
   const screens = (screensParam || defaultScreens).split(",").map(s => s.trim());
   
   const sport = searchParams.get("sport") || "Cricket";
@@ -29,16 +29,16 @@ const DemoAutoplay = () => {
     };
   }, [isDemoMode, sport]);
 
-  // Anonymous sign-in
+  // Check session and sign in anonymously if needed
   useEffect(() => {
-    const signInAnonymously = async () => {
+    const ensureSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         await supabase.auth.signInAnonymously();
       }
       setIsReady(true);
     };
-    signInAnonymously();
+    ensureSession();
   }, []);
 
   // Auto-scroll every 2.5s
