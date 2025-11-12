@@ -157,24 +157,24 @@ export const CoachAICoPilot = () => {
               return (
                 <div
                   key={athlete.id}
-                  className="flex flex-col md:flex-row md:items-center gap-4 p-4 rounded-lg bg-charcoal/40 border border-border hover:border-vibrantOrange/30 transition-smooth"
+                  className="flex flex-col justify-between gap-3 p-4 rounded-xl bg-charcoal/40 border border-border hover:border-vibrantOrange/30 transition-smooth min-h-[110px]"
                 >
-                  {/* Avatar & Info */}
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <Avatar className="h-10 w-10">
+                  {/* Top: Avatar & Info */}
+                  <div className="flex items-center gap-3.5">
+                    <Avatar className="h-10 w-10 shrink-0">
                       <AvatarImage src={athlete.avatar || undefined} />
                       <AvatarFallback className="bg-vibrantOrange/20 text-vibrantOrange">
                         {initials}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0">
                       <p className="text-white font-medium truncate">{athlete.name}</p>
                       <p className="text-coolGray text-sm">{athlete.sport}</p>
                     </div>
                   </div>
 
-                  {/* Badges */}
-                  <div className="flex flex-wrap gap-2">
+                  {/* Middle: Badges */}
+                  <div className="flex flex-wrap gap-2 items-center">
                     {badges.map((badge, idx) => (
                       <Badge
                         key={idx}
@@ -186,40 +186,43 @@ export const CoachAICoPilot = () => {
                     ))}
                   </div>
 
-                  {/* Metrics Sparkline */}
-                  <div className="flex gap-2 items-center">
-                    {Object.entries(athlete.metrics).map(([key, value]) => (
-                      <div key={key} className="text-center">
-                        <div className={`text-xs font-medium ${value < 60 ? 'text-red-400' : 'text-coolGray'}`}>
-                          {value}
+                  {/* Bottom: Stats + Action Buttons */}
+                  <div className="flex items-center justify-between gap-3">
+                    {/* Stats */}
+                    <div className="flex gap-3 items-center">
+                      {Object.entries(athlete.metrics).map(([key, value]) => (
+                        <div key={key} className="text-center">
+                          <div className={`text-xs font-semibold ${value < 60 ? 'text-red-400' : 'text-white'}`}>
+                            {value}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground">
+                            {key.charAt(0).toUpperCase()}
+                          </div>
                         </div>
-                        <div className="text-[10px] text-muted-foreground">
-                          {key.charAt(0).toUpperCase()}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleSuggestDrills(athlete)}
-                      className="hover:border-vibrantOrange hover:text-vibrantOrange"
-                    >
-                      <Sparkles className="h-4 w-4 mr-1" />
-                      Suggest Drills
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleMessage(athlete)}
-                      className="hover:border-vibrantOrange hover:text-vibrantOrange"
-                    >
-                      <MessageSquare className="h-4 w-4 mr-1" />
-                      Message
-                    </Button>
+                    {/* Action Buttons */}
+                    <div className="flex gap-2.5 shrink-0">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleSuggestDrills(athlete)}
+                        className="hover:border-vibrantOrange hover:text-vibrantOrange"
+                      >
+                        <Sparkles className="h-4 w-4 mr-1" />
+                        Suggest Drills
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleMessage(athlete)}
+                        className="hover:border-vibrantOrange hover:text-vibrantOrange"
+                      >
+                        <MessageSquare className="h-4 w-4 mr-1" />
+                        Message
+                      </Button>
+                    </div>
                   </div>
                 </div>
               );
