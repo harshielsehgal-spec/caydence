@@ -253,4 +253,13 @@ All colors MUST be HSL.
   .animate-rhythm {
     animation: rhythm-pulse 1s ease-in-out infinite;
   }
+  
+  @keyframes cc-spin {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(360deg); }
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .cc-coin { animation: none !important; }
+  }
 }
