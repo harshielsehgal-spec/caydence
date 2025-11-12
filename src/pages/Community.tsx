@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Heart, TrendingUp, TrendingDown, Award, Flame, Share2 } from "lucide-react";
+import { Heart, TrendingUp, TrendingDown, Award, Flame, Share2, User } from "lucide-react";
+import HeaderCoin from "@/components/HeaderCoin";
 
 const mockHighlights = [
   { id: "h01", type: "athlete", name: "Riya Patel", sport: "Football", achievement: "+12% balance", time: "2h ago", avatar: "/placeholder.svg", likes: 24 },
@@ -50,6 +52,7 @@ const mockAchievements = [
 ];
 
 const Community = () => {
+  const navigate = useNavigate();
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [leaderboardTab, setLeaderboardTab] = useState<"athletes" | "coaches">("athletes");
 
@@ -83,11 +86,28 @@ const Community = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0D0D0D] to-[#1A1A1A] p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-b from-[#0D0D0D] to-[#1A1A1A]">
+      {/* Top Bar */}
+      <div className="sticky top-0 z-20 bg-[#0D0D0D]/90 backdrop-blur-md border-b border-[#FF6B00]/20">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-xl font-bold text-white">Community</h1>
+          <div className="flex items-center gap-3">
+            <HeaderCoin />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigate("/profile")}
+              className="font-poppins"
+            >
+              <User className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto p-4 md:p-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Community</h1>
           <p className="text-[#D0D0D0] text-lg mb-6">Connect, compete, and celebrate progress together</p>
           
           {/* Engagement Summary */}

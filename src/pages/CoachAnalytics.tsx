@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { Download, TrendingUp, TrendingDown, Users, Star, Activity, Lightbulb, ArrowLeft, FileText, Video } from "lucide-react";
+import { Download, TrendingUp, TrendingDown, Users, Star, Activity, Lightbulb, ArrowLeft, FileText, Video, User } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import HeaderCoin from "@/components/HeaderCoin";
 
 // Mock data structure as per requirements
 const MOCK_ANALYTICS = {
@@ -136,6 +137,24 @@ export default function CoachAnalytics() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-charcoal via-secondary to-charcoal">
+      {/* Top Bar */}
+      <div className="sticky top-0 z-20 bg-charcoal/90 backdrop-blur-md border-b border-border">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between max-w-7xl">
+          <h1 className="text-xl font-bold text-foreground">Analytics Dashboard</h1>
+          <div className="flex items-center gap-3">
+            <HeaderCoin />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigate("/profile")}
+              className="font-poppins"
+            >
+              <User className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           {/* Header */}
@@ -150,7 +169,6 @@ export default function CoachAnalytics() {
           </Button>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <h1 className="text-4xl font-bold text-foreground mb-2 font-heading">Analytics Dashboard</h1>
                 <p className="text-muted-foreground">Track athlete progress and coaching performance</p>
                 <TabsList className="mt-4 bg-card border border-border">
                   <TabsTrigger value="overview">Overview</TabsTrigger>

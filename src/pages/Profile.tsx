@@ -10,6 +10,7 @@ import { RoleSwitch } from "@/components/RoleSwitch";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
+import HeaderCoin from "@/components/HeaderCoin";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -78,16 +79,23 @@ const Profile = () => {
   ];
 
   return (
-    <div className="min-h-screen px-4 py-8 bg-background">
-      <div className="max-w-4xl mx-auto">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(-1)}
-          className="mb-6 font-poppins"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
+    <div className="min-h-screen bg-background">
+      {/* Top Bar */}
+      <div className="sticky top-0 z-20 bg-background/90 backdrop-blur-md border-b border-border">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="font-poppins"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+          <HeaderCoin />
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 py-8">
 
         {/* Profile Header */}
         <Card className="mb-6 shadow-card-hover overflow-hidden animate-slide-up">

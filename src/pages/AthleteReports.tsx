@@ -4,7 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Star, TrendingUp, TrendingDown, Video, Filter } from "lucide-react";
+import { ArrowLeft, Star, TrendingUp, TrendingDown, Video, Filter, User } from "lucide-react";
+import HeaderCoin from "@/components/HeaderCoin";
 
 // Mock combined reports data
 const MOCK_REPORTS = [
@@ -104,6 +105,24 @@ export default function AthleteReports() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-charcoal via-secondary to-charcoal">
+      {/* Top Bar */}
+      <div className="sticky top-0 z-20 bg-charcoal/90 backdrop-blur-md border-b border-border">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between max-w-7xl">
+          <h1 className="text-xl font-bold text-foreground">Combined Reports</h1>
+          <div className="flex items-center gap-3">
+            <HeaderCoin />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigate("/profile")}
+              className="font-poppins"
+            >
+              <User className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="mb-8">
@@ -117,9 +136,6 @@ export default function AthleteReports() {
           </Button>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold text-foreground mb-2 font-heading">
-                Combined Reports
-              </h1>
               <p className="text-muted-foreground">
                 Your AI analysis history with coach feedback
               </p>

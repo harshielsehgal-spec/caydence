@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Camera, TrendingUp, Activity } from "lucide-react";
+import { ArrowLeft, Camera, TrendingUp, Activity, User } from "lucide-react";
+import HeaderCoin from "@/components/HeaderCoin";
 
 const MotionAnalysis = () => {
   const navigate = useNavigate();
@@ -28,16 +29,33 @@ const MotionAnalysis = () => {
   }, [analyzing]);
 
   return (
-    <div className="min-h-screen px-4 py-8 bg-background">
-      <div className="max-w-4xl mx-auto">
-        <Button
-          variant="ghost"
-          onClick={() => navigate(-1)}
-          className="mb-6 font-poppins"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
+    <div className="min-h-screen bg-background">
+      {/* Top Bar */}
+      <div className="sticky top-0 z-20 bg-background/90 backdrop-blur-md border-b border-border">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="font-poppins"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+          <div className="flex items-center gap-3">
+            <HeaderCoin />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigate("/profile")}
+              className="font-poppins"
+            >
+              <User className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 py-8">
 
         <div className="text-center mb-8 animate-slide-up">
           <h1 className="text-3xl md:text-4xl font-bold mb-3 font-poppins">

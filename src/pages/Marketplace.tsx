@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import CoachCard from "@/components/CoachCard";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, User } from "lucide-react";
+import HeaderCoin from "@/components/HeaderCoin";
 
 // Mock coach data - Expanded and diversified
 const mockCoaches = [
@@ -370,13 +371,28 @@ const Marketplace = () => {
   });
 
   return (
-    <div className="min-h-screen px-4 py-8 bg-background">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background">
+      {/* Top Bar */}
+      <div className="sticky top-0 z-20 bg-background/90 backdrop-blur-md border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-xl font-bold font-poppins">Find Your Coach</h1>
+          <div className="flex items-center gap-3">
+            <HeaderCoin />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigate("/profile")}
+              className="font-poppins"
+            >
+              <User className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8 animate-slide-up">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2 font-poppins">
-            Find Your Coach
-          </h1>
           <p className="text-muted-foreground font-montserrat">
             {preferences.sport ? `Coaches for ${preferences.sport}` : "Browse verified trainers"}
           </p>

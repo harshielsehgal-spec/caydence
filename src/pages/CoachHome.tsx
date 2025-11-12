@@ -14,6 +14,7 @@ import { RoleSwitch } from "@/components/RoleSwitch";
 import { TryAnalysisWidget } from "@/components/TryAnalysisWidget";
 import { CoachAICoPilot } from "@/components/CoachAICoPilot";
 import { CoachSidebar } from "@/components/CoachSidebar";
+import HeaderCoin from "@/components/HeaderCoin";
 
 const CoachHome = () => {
   const navigate = useNavigate();
@@ -201,6 +202,7 @@ const CoachHome = () => {
                 <span className="text-white text-sm font-medium">Verified Coach</span>
               </div>
             )}
+            <HeaderCoin />
             <RoleSwitch 
               roles={roles} 
               currentRole={currentRole} 

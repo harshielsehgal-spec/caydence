@@ -10,6 +10,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { RoleSwitch } from "@/components/RoleSwitch";
 import { TryAnalysisWidget } from "@/components/TryAnalysisWidget";
 import { AthleteBottomNav } from "@/components/AthleteBottomNav";
+import HeaderCoin from "@/components/HeaderCoin";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -77,6 +78,7 @@ const Dashboard = () => {
               currentRole={currentRole} 
               onSwitch={handleRoleSwitch}
             />
+            <HeaderCoin />
             <Button
               variant="outline"
               onClick={() => navigate("/profile")}
