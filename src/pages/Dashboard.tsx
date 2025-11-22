@@ -289,10 +289,10 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 w-full">
           <Button
             onClick={() => navigate("/video-upload")}
-            className="h-20 text-lg font-poppins"
+            className="h-20 text-lg font-poppins w-full box-border"
           >
             <Video className="mr-2 h-5 w-5" />
             New Analysis
@@ -300,7 +300,7 @@ const Dashboard = () => {
           <Button
             variant="outline"
             onClick={() => navigate("/athlete/skill-map")}
-            className="h-20 text-lg font-poppins"
+            className="h-20 text-lg font-poppins w-full box-border"
           >
             <Activity className="mr-2 h-5 w-5" />
             Skill Map
@@ -308,7 +308,7 @@ const Dashboard = () => {
           <Button
             variant="outline"
             onClick={() => navigate("/athlete/challenges")}
-            className="h-20 text-lg font-poppins"
+            className="h-20 text-lg font-poppins w-full box-border"
           >
             <Trophy className="mr-2 h-5 w-5" />
             Join a Challenge
@@ -319,14 +319,14 @@ const Dashboard = () => {
               sessionStorage.setItem('fromDashboard', 'true');
               navigate("/coach-swipe");
             }}
-            className="h-20 text-lg font-poppins"
+            className="h-20 text-lg font-poppins w-full box-border"
           >
             Find Coaches
           </Button>
           <Button
             variant="outline"
             onClick={() => navigate("/community")}
-            className="h-20 text-lg font-poppins"
+            className="h-20 text-lg font-poppins w-full box-border"
           >
             <Users className="mr-2 h-5 w-5" />
             Community

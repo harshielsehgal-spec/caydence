@@ -157,7 +157,7 @@ export const CoachAICoPilot = () => {
               return (
                 <div
                   key={athlete.id}
-                  className="flex flex-col justify-between gap-3 p-4 rounded-xl bg-charcoal/40 border border-border hover:border-vibrantOrange/30 transition-smooth min-h-[110px]"
+                  className="flex flex-col justify-between gap-3 p-4 rounded-xl bg-charcoal/40 border border-border hover:border-vibrantOrange/30 transition-smooth min-h-[110px] max-w-full overflow-hidden box-border"
                 >
                   {/* Top: Avatar & Info */}
                   <div className="flex items-center gap-3.5">
@@ -187,9 +187,9 @@ export const CoachAICoPilot = () => {
                   </div>
 
                   {/* Bottom: Stats + Action Buttons */}
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center justify-between gap-3 flex-nowrap">
                     {/* Stats */}
-                    <div className="flex gap-3 items-center">
+                    <div className="flex gap-3 items-center flex-shrink-0">
                       {Object.entries(athlete.metrics).map(([key, value]) => (
                         <div key={key} className="text-center">
                           <div className={`text-xs font-semibold ${value < 60 ? 'text-red-400' : 'text-white'}`}>
@@ -203,12 +203,12 @@ export const CoachAICoPilot = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-2.5 shrink-0">
+                    <div className="flex gap-2 shrink-0 flex-nowrap">
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => handleSuggestDrills(athlete)}
-                        className="hover:border-vibrantOrange hover:text-vibrantOrange"
+                        className="hover:border-vibrantOrange hover:text-vibrantOrange whitespace-nowrap"
                       >
                         <Sparkles className="h-4 w-4 mr-1" />
                         Suggest Drills
@@ -217,7 +217,7 @@ export const CoachAICoPilot = () => {
                         size="sm"
                         variant="outline"
                         onClick={() => handleMessage(athlete)}
-                        className="hover:border-vibrantOrange hover:text-vibrantOrange"
+                        className="hover:border-vibrantOrange hover:text-vibrantOrange whitespace-nowrap"
                       >
                         <MessageSquare className="h-4 w-4 mr-1" />
                         Message
