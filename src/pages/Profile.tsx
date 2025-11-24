@@ -28,6 +28,13 @@ const Profile = () => {
     getUser();
   }, []);
 
+  // Get user email and display name from Supabase Auth
+  const email = user?.email || "";
+  const displayName = 
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name ||
+    (email ? email.split("@")[0] : "User");
+
   const handlePlanUpdate = (plan: "basic" | "pro" | "elite", billing: "monthly" | "yearly") => {
     setUserPlan(plan);
   };
@@ -110,8 +117,8 @@ const Profile = () => {
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
                   <div>
-                    <h1 className="text-3xl font-bold font-poppins mb-2">John Doe</h1>
-                    <p className="text-muted-foreground font-montserrat">john.doe@example.com</p>
+                    <h1 className="text-3xl font-bold font-poppins mb-2">{displayName}</h1>
+                    <p className="text-muted-foreground font-montserrat">{email}</p>
                   </div>
                   
                   <Button variant="outline" className="font-poppins">
