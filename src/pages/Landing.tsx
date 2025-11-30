@@ -38,7 +38,7 @@ const Landing = () => {
             
             <div className="h-1 w-32 mx-auto mb-6 bg-gradient-orange rounded-full"></div>
             
-            <p className="text-xl md:text-2xl mb-12 font-body font-semibold" style={{ color: '#0D0D0D', textShadow: '0 0 10px rgba(255, 255, 255, 0.8)' }}>
+            <p className="text-xl md:text-2xl mb-12 font-body font-semibold" style={{ color: '#E0E0E0', textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}>
               AI + Human Coaching Combined for Real Performance
             </p>
 
