@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Trophy, TrendingUp } from "lucide-react";
+import { Trophy, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import BackHeader from "@/components/BackHeader";
 
 const currentChallenge = {
   id: "dribble-week45",
@@ -51,22 +52,12 @@ const AthleteChallenges = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0D0D0D] to-[#1A1A1A] text-white p-4 md:p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-b from-[#0D0D0D] to-[#1A1A1A] text-white">
+      <BackHeader title="Challenge Mode" onBack={() => navigate("/dashboard")} />
+      <div className="max-w-6xl mx-auto p-4 md:p-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/dashboard")}
-            className="hover:bg-white/10"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold">Challenge Mode</h1>
-            <p className="text-[#D0D0D0] mt-1">Compete with athletes nationwide</p>
-          </div>
+        <div className="mb-8">
+          <p className="text-[#D0D0D0] mt-1">Compete with athletes nationwide</p>
         </div>
 
         {/* Current Challenge Card */}
