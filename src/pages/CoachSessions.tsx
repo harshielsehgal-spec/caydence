@@ -98,11 +98,14 @@ const CoachSessions = () => {
     if (!selectedSession) return;
 
     try {
+      // Validate and sanitize decline reason
+      const sanitizedReason = declineReason.trim().slice(0, 500) || "No reason provided";
+      
       const { error } = await supabase
         .from("sessions")
         .update({
           status: "declined",
-          coach_decline_reason: declineReason || "No reason provided",
+          coach_decline_reason: sanitizedReason,
         })
         .eq("id", selectedSession.id);
 
@@ -264,13 +267,17 @@ const CoachSessions = () => {
               Would you like to provide a reason for declining? (Optional)
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <Textarea
-            value={declineReason}
-            onChange={(e) => setDeclineReason(e.target.value)}
-            placeholder="Reason for declining (optional)"
-            className="bg-charcoal/60 border-vibrantOrange/30 text-white"
-            rows={3}
-          />
+          <div className="space-y-2">
+            <Textarea
+              value={declineReason}
+              onChange={(e) => setDeclineReason(e.target.value.slice(0, 500))}
+              placeholder="Reason for declining (optional)"
+              className="bg-charcoal/60 border-vibrantOrange/30 text-white"
+              rows={3}
+              maxLength={500}
+            />
+            <p className="text-xs text-coolGray text-right">{declineReason.length}/500</p>
+          </div>
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-charcoal/60 text-white border-border">
               Cancel
