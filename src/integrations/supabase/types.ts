@@ -77,13 +77,6 @@ export type Database = {
             referencedRelation: "coaches"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "coach_analytics_coach_id_fkey"
-            columns: ["coach_id"]
-            isOneToOne: false
-            referencedRelation: "coaches_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       coach_availability: {
@@ -120,13 +113,6 @@ export type Database = {
             columns: ["coach_id"]
             isOneToOne: false
             referencedRelation: "coaches"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "coach_availability_coach_id_fkey"
-            columns: ["coach_id"]
-            isOneToOne: false
-            referencedRelation: "coaches_public"
             referencedColumns: ["id"]
           },
         ]
@@ -295,13 +281,6 @@ export type Database = {
             referencedRelation: "coaches"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "masterclasses_coach_id_fkey"
-            columns: ["coach_id"]
-            isOneToOne: false
-            referencedRelation: "coaches_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       offers: {
@@ -362,13 +341,6 @@ export type Database = {
             columns: ["coach_id"]
             isOneToOne: false
             referencedRelation: "coaches"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "offers_coach_id_fkey"
-            columns: ["coach_id"]
-            isOneToOne: false
-            referencedRelation: "coaches_public"
             referencedColumns: ["id"]
           },
         ]
@@ -482,13 +454,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "sessions_coach_id_fkey"
-            columns: ["coach_id"]
-            isOneToOne: false
-            referencedRelation: "coaches_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "sessions_offer_id_fkey"
             columns: ["offer_id"]
             isOneToOne: false
@@ -520,63 +485,6 @@ export type Database = {
       }
     }
     Views: {
-      coaches_public: {
-        Row: {
-          bio: string | null
-          cities: string[] | null
-          created_at: string | null
-          id: string | null
-          languages: string[] | null
-          mode: string[] | null
-          name: string | null
-          per_session_fee: number | null
-          photo_url: string | null
-          rating: number | null
-          reviews_count: number | null
-          setup_complete: boolean | null
-          sports: string[] | null
-          updated_at: string | null
-          verified: boolean | null
-          years_experience: number | null
-        }
-        Insert: {
-          bio?: string | null
-          cities?: string[] | null
-          created_at?: string | null
-          id?: string | null
-          languages?: string[] | null
-          mode?: string[] | null
-          name?: string | null
-          per_session_fee?: number | null
-          photo_url?: string | null
-          rating?: number | null
-          reviews_count?: number | null
-          setup_complete?: boolean | null
-          sports?: string[] | null
-          updated_at?: string | null
-          verified?: boolean | null
-          years_experience?: number | null
-        }
-        Update: {
-          bio?: string | null
-          cities?: string[] | null
-          created_at?: string | null
-          id?: string | null
-          languages?: string[] | null
-          mode?: string[] | null
-          name?: string | null
-          per_session_fee?: number | null
-          photo_url?: string | null
-          rating?: number | null
-          reviews_count?: number | null
-          setup_complete?: boolean | null
-          sports?: string[] | null
-          updated_at?: string | null
-          verified?: boolean | null
-          years_experience?: number | null
-        }
-        Relationships: []
-      }
       masterclass_enrollment_stats: {
         Row: {
           confirmed_count: number | null
