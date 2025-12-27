@@ -515,6 +515,23 @@ export type Database = {
           total_bookings: number
         }[]
       }
+      get_coach_sessions: {
+        Args: { coach_uuid: string }
+        Returns: {
+          athlete_id: string
+          athlete_notes: string
+          coach_decline_reason: string
+          coach_id: string
+          created_at: string
+          end_time: string
+          id: string
+          mode: string
+          offer_id: string
+          start_time: string
+          status: string
+          updated_at: string
+        }[]
+      }
       get_masterclass_enrollment_summary: {
         Args: { masterclass_uuid: string }
         Returns: {
