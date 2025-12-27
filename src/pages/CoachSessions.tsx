@@ -53,17 +53,30 @@ const CoachSessions = () => {
       if (coachError) throw coachError;
       setCoachId(coach.id);
 
+      // Use secure function that conditionally hides athlete_notes for pending sessions
       const { data: sessionsData, error: sessionsError } = await supabase
-        .from("sessions")
-        .select(`
-          *,
-          offers (title, sport, mode)
-        `)
-        .eq("coach_id", coach.id)
-        .order("start_time", { ascending: true });
+        .rpc("get_coach_sessions", { coach_uuid: coach.id });
 
       if (sessionsError) throw sessionsError;
-      setSessions(sessionsData || []);
+
+      // Fetch offer details for each session
+      const sessionsWithOffers = await Promise.all(
+        (sessionsData || []).map(async (session: any) => {
+          const { data: offer } = await supabase
+            .from("offers")
+            .select("title, sport, mode")
+            .eq("id", session.offer_id)
+            .maybeSingle();
+          return { ...session, offers: offer };
+        })
+      );
+
+      // Sort by start_time
+      sessionsWithOffers.sort((a, b) => 
+        new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
+      );
+
+      setSessions(sessionsWithOffers);
     } catch (error: any) {
       console.error("Error fetching data:", error);
       toast.error("Failed to load sessions");
