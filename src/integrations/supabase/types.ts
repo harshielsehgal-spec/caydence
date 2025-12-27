@@ -485,24 +485,7 @@ export type Database = {
       }
     }
     Views: {
-      masterclass_enrollment_stats: {
-        Row: {
-          confirmed_count: number | null
-          latest_enrollment: string | null
-          masterclass_id: string | null
-          pending_count: number | null
-          total_enrolled: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "masterclass_enrollments_masterclass_id_fkey"
-            columns: ["masterclass_id"]
-            isOneToOne: false
-            referencedRelation: "masterclasses"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
       calculate_coach_leaderboard: {
