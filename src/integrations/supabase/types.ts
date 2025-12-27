@@ -515,6 +515,23 @@ export type Database = {
           total_bookings: number
         }[]
       }
+      get_athlete_sessions: {
+        Args: { athlete_uuid: string }
+        Returns: {
+          athlete_id: string
+          athlete_notes: string
+          coach_decline_reason: string
+          coach_id: string
+          created_at: string
+          end_time: string
+          id: string
+          mode: string
+          offer_id: string
+          start_time: string
+          status: string
+          updated_at: string
+        }[]
+      }
       get_coach_sessions: {
         Args: { coach_uuid: string }
         Returns: {
@@ -538,6 +555,27 @@ export type Database = {
           confirmed_count: number
           pending_count: number
           total_enrolled: number
+        }[]
+      }
+      get_public_coach_profiles: {
+        Args: never
+        Returns: {
+          bio: string
+          cities: string[]
+          created_at: string
+          id: string
+          languages: string[]
+          mode: string[]
+          name: string
+          per_session_fee: number
+          photo_url: string
+          rating: number
+          reviews_count: number
+          setup_complete: boolean
+          sports: string[]
+          updated_at: string
+          verified: boolean
+          years_experience: number
         }[]
       }
       has_role: {
