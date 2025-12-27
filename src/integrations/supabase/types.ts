@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       coach_analytics: {
         Row: {
           avg_form_score: number | null
@@ -352,6 +373,63 @@ export type Database = {
           },
         ]
       }
+      rate_limits: {
+        Row: {
+          action: string
+          count: number
+          id: string
+          user_id: string
+          window_start: string
+        }
+        Insert: {
+          action: string
+          count?: number
+          id?: string
+          user_id: string
+          window_start?: string
+        }
+        Update: {
+          action?: string
+          count?: number
+          id?: string
+          user_id?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      security_audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: string | null
+          resource_id: string | null
+          resource_type: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          resource_id?: string | null
+          resource_type: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          resource_id?: string | null
+          resource_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sessions: {
         Row: {
           athlete_id: string
@@ -499,6 +577,24 @@ export type Database = {
         }
         Relationships: []
       }
+      masterclass_enrollment_stats: {
+        Row: {
+          confirmed_count: number | null
+          latest_enrollment: string | null
+          masterclass_id: string | null
+          pending_count: number | null
+          total_enrolled: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "masterclass_enrollments_masterclass_id_fkey"
+            columns: ["masterclass_id"]
+            isOneToOne: false
+            referencedRelation: "masterclasses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       calculate_coach_leaderboard: {
@@ -514,6 +610,14 @@ export type Database = {
           sport: string
           total_bookings: number
         }[]
+      }
+      check_rate_limit: {
+        Args: {
+          _action: string
+          _max_requests?: number
+          _window_minutes?: number
+        }
+        Returns: boolean
       }
       get_athlete_sessions: {
         Args: { athlete_uuid: string }
@@ -584,6 +688,16 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
+      log_security_event: {
+        Args: {
+          _action: string
+          _details?: Json
+          _resource_id?: string
+          _resource_type: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
