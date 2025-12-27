@@ -682,6 +682,28 @@ export type Database = {
           years_experience: number
         }[]
       }
+      get_public_coaches: {
+        Args: {
+          city_filter?: string
+          sport_filter?: string
+          verified_only?: boolean
+        }
+        Returns: {
+          bio: string
+          cities: string[]
+          id: string
+          languages: string[]
+          mode: string[]
+          name: string
+          per_session_fee: number
+          photo_url: string
+          rating: number
+          reviews_count: number
+          sports: string[]
+          verified: boolean
+          years_experience: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -699,6 +721,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      setup_first_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "athlete" | "coach"
