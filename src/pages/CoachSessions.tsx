@@ -53,7 +53,7 @@ const CoachSessions = () => {
       if (coachError) throw coachError;
       setCoachId(coach.id);
 
-      // Use secure function that conditionally hides athlete_notes for pending sessions
+      // Use secure function - athlete_notes are stored separately for privacy
       const { data: sessionsData, error: sessionsError } = await supabase
         .rpc("get_coach_sessions", { coach_uuid: coach.id });
 
@@ -157,12 +157,7 @@ const CoachSessions = () => {
               </div>
             </div>
 
-            {session.athlete_notes && (
-              <div className="mt-3 p-3 bg-charcoal/40 rounded border border-border">
-                <p className="text-xs text-coolGray mb-1">Athlete Notes:</p>
-                <p className="text-white text-sm">{session.athlete_notes}</p>
-              </div>
-            )}
+            {/* Private athlete notes are stored separately and only visible to the athlete */}
           </div>
 
           {session.status === "pending" && (
