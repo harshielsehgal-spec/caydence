@@ -35,6 +35,41 @@ export type Database = {
         }
         Relationships: []
       }
+      athlete_private_notes: {
+        Row: {
+          athlete_id: string
+          created_at: string
+          id: string
+          private_notes: string | null
+          session_id: string
+          updated_at: string
+        }
+        Insert: {
+          athlete_id: string
+          created_at?: string
+          id?: string
+          private_notes?: string | null
+          session_id: string
+          updated_at?: string
+        }
+        Update: {
+          athlete_id?: string
+          created_at?: string
+          id?: string
+          private_notes?: string | null
+          session_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "athlete_private_notes_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: true
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coach_analytics: {
         Row: {
           avg_form_score: number | null
@@ -522,6 +557,23 @@ export type Database = {
           id: string
           mode: string
           offer_id: string
+          start_time: string
+          status: string
+          updated_at: string
+        }[]
+      }
+      get_athlete_sessions_with_notes: {
+        Args: { athlete_uuid: string }
+        Returns: {
+          athlete_id: string
+          coach_decline_reason: string
+          coach_id: string
+          created_at: string
+          end_time: string
+          id: string
+          mode: string
+          offer_id: string
+          private_notes: string
           start_time: string
           status: string
           updated_at: string
