@@ -1,4 +1,4 @@
-# Cadence - Sports Coaching Platform
+# Caydence - Sports Coaching Platform
 
 A comprehensive sports coaching platform connecting athletes with verified coaches across multiple sports disciplines including Football, Cricket, Basketball, Tennis, and Badminton.
 
