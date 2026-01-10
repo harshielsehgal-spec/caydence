@@ -664,7 +664,6 @@ export type Database = {
         }
         Returns: undefined
       }
-      setup_first_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "athlete" | "coach"
