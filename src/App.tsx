@@ -36,6 +36,8 @@ import Community from "./pages/Community";
 import NotFound from "./pages/NotFound";
 import DevCleanup from "./pages/DevCleanup";
 import DemoAutoplay from "./pages/DemoAutoplay";
+import DrillCapture from "./pages/DrillCapture";
+import DrillReport from "./pages/DrillReport";
 
 const queryClient = new QueryClient();
 
@@ -83,6 +85,10 @@ const App = () => (
           
           {/* Community Route */}
           <Route path="/community" element={<Community />} />
+          
+          {/* Fitness Drill Routes */}
+          <Route path="/fitness/drills/:drillKey" element={<DrillCapture />} />
+          <Route path="/fitness/drills/:drillKey/report/:reportId" element={<DrillReport />} />
           
           {/* Demo Route */}
           <Route path="/demo-autoplay" element={<DemoAutoplay />} />

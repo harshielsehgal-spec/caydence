@@ -134,9 +134,7 @@ const SportSelection = () => {
 
   const handleDrillSelect = (drill: string) => {
     localStorage.setItem("selectedDrill", drill.toLowerCase());
-    navigate(`/skill-mode?sport=fitness&mode=drills&drill=${drill.toLowerCase()}`, {
-      state: { sport: "Fitness", mode: "drills", drill: drill.toLowerCase() },
-    });
+    navigate(`/fitness/drills/${drill.toLowerCase()}`);
   };
 
   const handleFitnessBack = () => {
@@ -173,7 +171,7 @@ const SportSelection = () => {
                 <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center group-hover:scale-110 transition-smooth shadow-card">
                   <Target className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="font-semibold text-lg font-poppins">Drills</h3>
+                <h3 className="font-semibold text-lg font-poppins">Explore Drills</h3>
                 <p className="text-sm text-muted-foreground font-montserrat">Self-guided workouts</p>
               </CardContent>
             </Card>
