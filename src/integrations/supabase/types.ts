@@ -212,6 +212,36 @@ export type Database = {
         }
         Relationships: []
       }
+      drill_video_reports: {
+        Row: {
+          created_at: string
+          drill_key: string
+          id: string
+          report_json: Json | null
+          status: string
+          user_id: string
+          video_path: string
+        }
+        Insert: {
+          created_at?: string
+          drill_key: string
+          id?: string
+          report_json?: Json | null
+          status?: string
+          user_id: string
+          video_path: string
+        }
+        Update: {
+          created_at?: string
+          drill_key?: string
+          id?: string
+          report_json?: Json | null
+          status?: string
+          user_id?: string
+          video_path?: string
+        }
+        Relationships: []
+      }
       masterclass_enrollments: {
         Row: {
           athlete_id: string
