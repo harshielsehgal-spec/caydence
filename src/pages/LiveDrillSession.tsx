@@ -13,7 +13,7 @@ import { getDrillDisplayName } from "@/utils/drillReportTemplate";
 
 const WS_URL          = import.meta.env.VITE_BACKEND_WS_URL  || "ws://localhost:8001";
 const API_BASE_URL    = import.meta.env.VITE_BACKEND_API_URL  || "http://localhost:8000/api";
-const FRAME_INTERVAL  = 80; // ms — 12.5 fps, same as PushupLive
+const FRAME_INTERVAL  = 200; // ms — 5 fps, better for slow servers
 
 const VALID_DRILLS = ["pushup", "bicep", "squat"];
 
@@ -163,7 +163,7 @@ export default function LiveDrillSession() {
     intervalRef.current = setInterval(() => {
       const ws = wsRef.current;
       if (!ws || ws.readyState !== WebSocket.OPEN) return;
-      const screenshot = webcamRef.current?.getScreenshot();
+      const screenshot = webcamRef.current?.getScreenshot({ width: 320, height: 180 });
       if (!screenshot) return;
       ws.send(JSON.stringify({ type: "frame", frame: screenshot.split(",")[1] }));
     }, FRAME_INTERVAL);
@@ -245,7 +245,7 @@ export default function LiveDrillSession() {
           ref={webcamRef}
           audio={false}
           screenshotFormat="image/jpeg"
-          videoConstraints={{ facingMode: "user", width: 640, height: 360 }}
+          videoConstraints={{ facingMode: "user", width: 320, height: 180 }}
           className="absolute inset-0 w-full h-full object-cover"
           style={{ opacity: annotated ? 0 : 1 }}
         />
