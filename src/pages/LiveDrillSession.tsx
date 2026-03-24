@@ -273,34 +273,43 @@ export default function LiveDrillSession() {
             <p className="text-emerald-400 text-sm uppercase tracking-widest">Saving session...</p>
           </div>
         )}
+      </div>
 
-        {/* Cue banner */}
-        {active && (
-          <div className={`absolute bottom-0 left-0 right-0 py-3 px-5 transition-all duration-150 ${
-            cueSeverity === "error" ? "bg-red-600/90"
-            : cueSeverity === "warn"  ? "bg-amber-500/90"
-            : "bg-black/40"
-          }`}>
-            <span className="text-sm font-bold uppercase tracking-widest text-white">
-              {cue || "✓ Good form"}
-            </span>
-          </div>
-        )}
-
-        {/* Phase badge */}
-        {active && (
-          <div
-            className="absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest"
+      {/* Cue alert — shown below video when active */}
+      {active && (
+        <div
+          className="w-full max-w-2xl mt-3 rounded-xl px-5 py-3 flex items-center gap-3 transition-all duration-200"
+          style={{
+            background: cueSeverity === "error" ? "#450a0a"
+                      : cueSeverity === "warn"  ? "#451a03"
+                      : "#0d1f12",
+            border: `1px solid ${
+              cueSeverity === "error" ? "#ef4444"
+              : cueSeverity === "warn"  ? "#f59e0b"
+              : "#16a34a"
+            }`,
+          }}
+        >
+          <span style={{
+            fontSize: "1.1rem",
+            color: cueSeverity === "error" ? "#ef4444"
+                 : cueSeverity === "warn"  ? "#f59e0b"
+                 : "#4ade80",
+          }}>
+            {cueSeverity === "error" ? "✕" : cueSeverity === "warn" ? "⚠" : "✓"}
+          </span>
+          <span
+            className="text-sm font-bold uppercase tracking-widest"
             style={{
-              background: `${phaseColors[phase] ?? "#fff"}22`,
-              color:       phaseColors[phase] ?? "#fff",
-              border:     `1px solid ${phaseColors[phase] ?? "#fff"}55`,
+              color: cueSeverity === "error" ? "#fca5a5"
+                   : cueSeverity === "warn"  ? "#fcd34d"
+                   : "#86efac",
             }}
           >
-            {phase}
-          </div>
-        )}
-      </div>
+            {cue || "Good form — keep going"}
+          </span>
+        </div>
+      )}
 
       {/* Stats row */}
       <div className="w-full max-w-2xl grid grid-cols-3 gap-3 mt-4">
