@@ -38,6 +38,7 @@ import DevCleanup from "./pages/DevCleanup";
 import DemoAutoplay from "./pages/DemoAutoplay";
 import DrillCapture from "./pages/DrillCapture";
 import DrillReport from "./pages/DrillReport";
+import LiveDrillSession from "./pages/LiveDrillSession";
 
 const queryClient = new QueryClient();
 
@@ -62,7 +63,7 @@ const App = () => (
           <Route path="/ai-insights" element={<AIInsights />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
-          
+
           {/* Coach Routes */}
           <Route path="/coach/onboarding" element={<CoachOnboarding />} />
           <Route path="/coach/home" element={<CoachHome />} />
@@ -77,26 +78,26 @@ const App = () => (
           <Route path="/athlete/reports/latest" element={<AthleteReportDetail />} />
           <Route path="/coach/messages" element={<CoachMessages />} />
           <Route path="/coach/revenue" element={<CoachRevenue />} />
-          
+
           {/* Athlete Routes */}
           <Route path="/athlete/skill-map" element={<AthleteSkillMap />} />
           <Route path="/athlete/playlists" element={<AthletePlaylists />} />
           <Route path="/athlete/challenges" element={<AthleteChallenges />} />
-          
-          {/* Community Route */}
+
+          {/* Community */}
           <Route path="/community" element={<Community />} />
-          
+
           {/* Fitness Drill Routes */}
           <Route path="/fitness/drills/:drillKey" element={<DrillCapture />} />
+          <Route path="/fitness/drills/:drillKey/live" element={<LiveDrillSession />} />
           <Route path="/fitness/drills/:drillKey/report/:reportId" element={<DrillReport />} />
-          
-          {/* Demo Route */}
+
+          {/* Demo */}
           <Route path="/demo-autoplay" element={<DemoAutoplay />} />
-          
-          {/* Dev Tools (DEV ONLY) */}
+
+          {/* Dev Tools */}
           <Route path="/dev-cleanup" element={<DevCleanup />} />
-          
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
