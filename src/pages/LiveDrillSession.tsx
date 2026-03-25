@@ -13,7 +13,7 @@ import { getDrillDisplayName } from "@/utils/drillReportTemplate";
 
 const WS_URL          = import.meta.env.VITE_BACKEND_WS_URL  || "ws://localhost:8001";
 const API_BASE_URL    = import.meta.env.VITE_BACKEND_API_URL  || "http://localhost:8000/api";
-const FRAME_INTERVAL  = 200; // ms — 5 fps, better for slow servers
+const FRAME_INTERVAL  = 150; // ms — ~7 fps, balanced speed vs server load
 
 const VALID_DRILLS = ["pushup", "bicep", "squat"];
 
