@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { flushSync } from "react-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import Webcam from "react-webcam";
 import { v4 as uuidv4 } from "uuid";
@@ -60,6 +61,8 @@ export default function LiveDrillSession() {
   const [active,      setActive]      = useState(false);
   // annotated frame removed — backend no longer sends frame_b64, raw webcam shown instead
   const [repCount,    setRepCount]    = useState(0);
+  const [repFlash,    setRepFlash]    = useState(false);
+  const prevRepRef    = useRef(0);
   const [phase,       setPhase]       = useState("IDLE");
   const [cue,         setCue]         = useState("");
   const [cueSeverity, setCueSeverity] = useState("");
@@ -119,7 +122,20 @@ export default function LiveDrillSession() {
       const msg = JSON.parse(evt.data);
 
       if (msg.type === "frame_result") {
-        setRepCount(msg.rep_count ?? 0);
+        const newReps = msg.rep_count ?? 0;
+
+        // Flush rep count update immediately — don't batch with other state
+        if (newReps !== prevRepRef.current) {
+          prevRepRef.current = newReps;
+          flushSync(() => {
+            setRepCount(newReps);
+            setRepFlash(true);
+          });
+          setTimeout(() => setRepFlash(false), 400);
+        } else {
+          setRepCount(newReps);
+        }
+
         setCue(msg.cue || "");
         setCueSeverity(msg.cue_severity || "");
         if (msg.last_score != null) setLastScore(msg.last_score);
@@ -147,6 +163,8 @@ export default function LiveDrillSession() {
     setCue("");
     setLastScore(null);
     setSummary(null);
+    setRepFlash(false);
+    prevRepRef.current = 0;
     setActive(true);
 
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
@@ -292,20 +310,43 @@ export default function LiveDrillSession() {
 
       {/* Stats row */}
       <div className="w-full max-w-2xl grid grid-cols-3 gap-3 mt-4">
-        {[
-          { label: "REPS",       value: repCount                              },
-          { label: "LAST SCORE", value: lastScore !== null ? `${Math.round(lastScore)}/100` : "—" },
-          { label: "PHASE",      value: phase                                 },
-        ].map(({ label, value }) => (
-          <div
-            key={label}
-            className="rounded-xl px-4 py-4 flex flex-col items-center"
-            style={{ background: "#0d1424", border: "1px solid #1e2d45" }}
+        {/* REPS card — flashes green on new rep */}
+        <div
+          className="rounded-xl px-4 py-4 flex flex-col items-center transition-all duration-150"
+          style={{
+            background: repFlash ? "#052e16" : "#0d1424",
+            border:     `1px solid ${repFlash ? "#16a34a" : "#1e2d45"}`,
+            transform:  repFlash ? "scale(1.04)" : "scale(1)",
+          }}
+        >
+          <span className="text-slate-500 text-xs uppercase tracking-widest mb-1">REPS</span>
+          <span
+            className="text-2xl font-bold transition-colors duration-150"
+            style={{ color: repFlash ? "#4ade80" : "#E2FBD0" }}
           >
-            <span className="text-slate-500 text-xs uppercase tracking-widest mb-1">{label}</span>
-            <span className="text-2xl font-bold" style={{ color: "#E2FBD0" }}>{value}</span>
-          </div>
-        ))}
+            {repCount}
+          </span>
+        </div>
+
+        {/* LAST SCORE card */}
+        <div
+          className="rounded-xl px-4 py-4 flex flex-col items-center"
+          style={{ background: "#0d1424", border: "1px solid #1e2d45" }}
+        >
+          <span className="text-slate-500 text-xs uppercase tracking-widest mb-1">LAST SCORE</span>
+          <span className="text-2xl font-bold" style={{ color: "#E2FBD0" }}>
+            {lastScore !== null ? `${Math.round(lastScore)}/100` : "—"}
+          </span>
+        </div>
+
+        {/* PHASE card */}
+        <div
+          className="rounded-xl px-4 py-4 flex flex-col items-center"
+          style={{ background: "#0d1424", border: "1px solid #1e2d45" }}
+        >
+          <span className="text-slate-500 text-xs uppercase tracking-widest mb-1">PHASE</span>
+          <span className="text-2xl font-bold" style={{ color: "#E2FBD0" }}>{phase}</span>
+        </div>
       </div>
 
       {/* Controls */}
