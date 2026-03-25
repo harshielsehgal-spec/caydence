@@ -58,7 +58,7 @@ export default function LiveDrillSession() {
 
   const [connected,   setConnected]   = useState(false);
   const [active,      setActive]      = useState(false);
-  const [annotated,   setAnnotated]   = useState<string | null>(null);
+  // annotated frame removed — backend no longer sends frame_b64, raw webcam shown instead
   const [repCount,    setRepCount]    = useState(0);
   const [phase,       setPhase]       = useState("IDLE");
   const [cue,         setCue]         = useState("");
@@ -119,7 +119,6 @@ export default function LiveDrillSession() {
       const msg = JSON.parse(evt.data);
 
       if (msg.type === "frame_result") {
-        if (msg.frame_b64) setAnnotated(msg.frame_b64);
         setRepCount(msg.rep_count ?? 0);
         setCue(msg.cue || "");
         setCueSeverity(msg.cue_severity || "");
@@ -148,7 +147,6 @@ export default function LiveDrillSession() {
     setCue("");
     setLastScore(null);
     setSummary(null);
-    setAnnotated(null);
     setActive(true);
 
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
@@ -240,24 +238,14 @@ export default function LiveDrillSession() {
           border:      `2px solid ${borderColor}`,
         }}
       >
-        {/* Raw webcam — always mounted so react-webcam can grab frames */}
+        {/* Raw webcam — always visible, no skeleton overlay */}
         <Webcam
           ref={webcamRef}
           audio={false}
           screenshotFormat="image/jpeg"
           videoConstraints={{ facingMode: "user", width: 320, height: 180 }}
           className="absolute inset-0 w-full h-full object-cover"
-          style={{ opacity: annotated ? 0 : 1 }}
         />
-
-        {/* Annotated frame from backend */}
-        {annotated && (
-          <img
-            src={`data:image/jpeg;base64,${annotated}`}
-            alt="annotated"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        )}
 
         {/* Idle overlay */}
         {!active && !summary && (
@@ -273,43 +261,34 @@ export default function LiveDrillSession() {
             <p className="text-emerald-400 text-sm uppercase tracking-widest">Saving session...</p>
           </div>
         )}
-      </div>
 
-      {/* Cue alert — shown below video when active */}
-      {active && (
-        <div
-          className="w-full max-w-2xl mt-3 rounded-xl px-5 py-3 flex items-center gap-3 transition-all duration-200"
-          style={{
-            background: cueSeverity === "error" ? "#450a0a"
-                      : cueSeverity === "warn"  ? "#451a03"
-                      : "#0d1f12",
-            border: `1px solid ${
-              cueSeverity === "error" ? "#ef4444"
-              : cueSeverity === "warn"  ? "#f59e0b"
-              : "#16a34a"
-            }`,
-          }}
-        >
-          <span style={{
-            fontSize: "1.1rem",
-            color: cueSeverity === "error" ? "#ef4444"
-                 : cueSeverity === "warn"  ? "#f59e0b"
-                 : "#4ade80",
-          }}>
-            {cueSeverity === "error" ? "✕" : cueSeverity === "warn" ? "⚠" : "✓"}
-          </span>
-          <span
-            className="text-sm font-bold uppercase tracking-widest"
+        {/* Cue banner */}
+        {active && (
+          <div className={`absolute bottom-0 left-0 right-0 py-3 px-5 transition-all duration-150 ${
+            cueSeverity === "error" ? "bg-red-600/90"
+            : cueSeverity === "warn"  ? "bg-amber-500/90"
+            : "bg-black/40"
+          }`}>
+            <span className="text-sm font-bold uppercase tracking-widest text-white">
+              {cue || "✓ Good form"}
+            </span>
+          </div>
+        )}
+
+        {/* Phase badge */}
+        {active && (
+          <div
+            className="absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest"
             style={{
-              color: cueSeverity === "error" ? "#fca5a5"
-                   : cueSeverity === "warn"  ? "#fcd34d"
-                   : "#86efac",
+              background: `${phaseColors[phase] ?? "#fff"}22`,
+              color:       phaseColors[phase] ?? "#fff",
+              border:     `1px solid ${phaseColors[phase] ?? "#fff"}55`,
             }}
           >
-            {cue || "Good form — keep going"}
-          </span>
-        </div>
-      )}
+            {phase}
+          </div>
+        )}
+      </div>
 
       {/* Stats row */}
       <div className="w-full max-w-2xl grid grid-cols-3 gap-3 mt-4">
@@ -405,7 +384,6 @@ export default function LiveDrillSession() {
           <button
             onClick={() => {
               setSummary(null);
-              setAnnotated(null);
               sessionId.current = uuidv4();
               connect();
             }}
