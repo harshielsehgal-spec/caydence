@@ -298,6 +298,12 @@ export default function LiveDrillSession() {
     ws.onmessage = (evt) => {
       const msg = JSON.parse(evt.data);
 
+      // Wait for engine ready ping before streaming
+      if (msg.type === "ready") {
+        beginStreaming();
+        return;
+      }
+
       if (msg.type === "frame_result") {
         const newReps = msg.rep_count ?? 0;
 
@@ -376,9 +382,11 @@ export default function LiveDrillSession() {
 
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
       connect();
-      setTimeout(beginStreaming, 800);
+      // beginStreaming fires when backend sends "ready" ping
     } else {
-      beginStreaming();
+      // Already connected — send a reconnect frame to get ready ping
+      wsRef.current.close();
+      connect();
     }
   };
 
