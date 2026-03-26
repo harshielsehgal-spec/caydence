@@ -194,14 +194,18 @@ export default function LiveDrillSession() {
 
   const voice = useVoiceCoach();
 
-  const [connected,   setConnected]   = useState(false);
-  const [active,      setActive]      = useState(false);
+  const [connected,     setConnected]     = useState(false);
+  const [reconnecting,  setReconnecting]  = useState(false);
+  const [active,        setActive]        = useState(false);
   // annotated frame removed — backend no longer sends frame_b64, raw webcam shown instead
-  const [repCount,    setRepCount]    = useState(0);
-  const [repFlash,    setRepFlash]    = useState(false);
-  const prevRepRef    = useRef(0);
-  const prevScoreRef  = useRef<number | null>(null);
-  const prevFaultRef  = useRef<string>("");
+  const [repCount,      setRepCount]      = useState(0);
+  const [repFlash,      setRepFlash]      = useState(false);
+  const prevRepRef      = useRef(0);
+  const prevScoreRef    = useRef<number | null>(null);
+  const prevFaultRef    = useRef<string>("");
+  const reconnectRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectDelay  = useRef(3000);
+  const unmountedRef    = useRef(false);
   const [phase,       setPhase]       = useState("IDLE");
   const [cue,         setCue]         = useState("");
   const [cueSeverity, setCueSeverity] = useState("");
@@ -248,14 +252,48 @@ export default function LiveDrillSession() {
     }
   }, [drillKey, navigate]);
 
-  // ── WebSocket connect ─────────────────────────────────────────────────────
+  // ── WebSocket connect with auto-reconnect ────────────────────────────────
   const connect = useCallback(() => {
+    if (unmountedRef.current) return;
+
+    // Clear any pending reconnect timer
+    if (reconnectRef.current) {
+      clearTimeout(reconnectRef.current);
+      reconnectRef.current = null;
+    }
+
     const ws = new WebSocket(`${WS_URL}/ws/${wsEndpoint}/${sessionId.current}`);
     wsRef.current = ws;
 
-    ws.onopen  = () => { setConnected(true); setError(""); };
-    ws.onclose = () => { setConnected(false); setActive(false); };
-    ws.onerror = () => setError("Backend not reachable — is it running on port 8001?");
+    ws.onopen = () => {
+      if (unmountedRef.current) return;
+      setConnected(true);
+      setReconnecting(false);
+      setError("");
+      reconnectDelay.current = 3000; // reset backoff on success
+    };
+
+    ws.onclose = () => {
+      if (unmountedRef.current) return;
+      setConnected(false);
+      setActive(false);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      // Auto-reconnect with exponential backoff (3s → 6s → 12s → max 15s)
+      setReconnecting(true);
+      reconnectRef.current = setTimeout(() => {
+        if (!unmountedRef.current) {
+          reconnectDelay.current = Math.min(reconnectDelay.current * 1.5, 15000);
+          connect();
+        }
+      }, reconnectDelay.current);
+    };
+
+    ws.onerror = () => {
+      // Let onclose handle the reconnect — don't show error immediately
+    };
 
     ws.onmessage = (evt) => {
       const msg = JSON.parse(evt.data);
@@ -367,9 +405,12 @@ export default function LiveDrillSession() {
 
   // ── Mount / unmount ───────────────────────────────────────────────────────
   useEffect(() => {
+    unmountedRef.current = false;
     connect();
     return () => {
+      unmountedRef.current = true;
       if (intervalRef.current) clearInterval(intervalRef.current);
+      if (reconnectRef.current) clearTimeout(reconnectRef.current);
       wsRef.current?.close();
     };
   }, [connect]);
@@ -410,9 +451,11 @@ export default function LiveDrillSession() {
         <span className={`text-xs px-3 py-1 rounded-full font-medium ${
           connected
             ? "bg-emerald-900/60 text-emerald-300 ring-1 ring-emerald-700"
+            : reconnecting
+            ? "bg-yellow-900/60 text-yellow-300 ring-1 ring-yellow-700"
             : "bg-red-900/60 text-red-300 ring-1 ring-red-700"
         }`}>
-          {connected ? "● CONNECTED" : "○ OFFLINE"}
+          {connected ? "● CONNECTED" : reconnecting ? "◌ RECONNECTING..." : "○ OFFLINE"}
         </span>
       </div>
 
@@ -521,8 +564,13 @@ export default function LiveDrillSession() {
         )}
       </div>
 
-      {/* Error */}
-      {error && (
+      {/* Status message */}
+      {reconnecting && !connected && (
+        <p className="mt-4 text-yellow-400 text-sm text-center animate-pulse">
+          Connecting to backend... please wait
+        </p>
+      )}
+      {error && !reconnecting && (
         <p className="mt-4 text-red-400 text-sm text-center">{error}</p>
       )}
 
