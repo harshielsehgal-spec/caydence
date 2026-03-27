@@ -205,6 +205,8 @@ export default function LiveDrillSession() {
   const prevFaultRef    = useRef<string>("");
   const reconnectRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reconnectDelay  = useRef(3000);
+  const reconnectCount  = useRef(0);
+  const MAX_RETRIES     = 5;
   const unmountedRef    = useRef(false);
   const [phase,       setPhase]       = useState("IDLE");
   const [cue,         setCue]         = useState("");
@@ -270,7 +272,8 @@ export default function LiveDrillSession() {
       setConnected(true);
       setReconnecting(false);
       setError("");
-      reconnectDelay.current = 3000; // reset backoff on success
+      reconnectDelay.current = 3000;
+      reconnectCount.current = 0;
     };
 
     ws.onclose = () => {
@@ -281,8 +284,16 @@ export default function LiveDrillSession() {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
-      // Auto-reconnect with exponential backoff (3s → 6s → 12s → max 15s)
+
+      if (reconnectCount.current >= MAX_RETRIES) {
+        setReconnecting(false);
+        setError("Backend unreachable. Please refresh the page.");
+        return;
+      }
+
+      reconnectCount.current += 1;
       setReconnecting(true);
+      // Use longer fixed delay — give engine time to init
       reconnectRef.current = setTimeout(() => {
         if (!unmountedRef.current) {
           reconnectDelay.current = Math.min(reconnectDelay.current * 1.5, 15000);
@@ -377,6 +388,8 @@ export default function LiveDrillSession() {
     prevRepRef.current   = 0;
     prevScoreRef.current = null;
     prevFaultRef.current = "";
+    reconnectCount.current = 0;
+    reconnectDelay.current = 3000;
     setActive(true);
     voice.sessionStart();
 
@@ -579,7 +592,21 @@ export default function LiveDrillSession() {
         </p>
       )}
       {error && !reconnecting && (
-        <p className="mt-4 text-red-400 text-sm text-center">{error}</p>
+        <div className="mt-4 flex flex-col items-center gap-2">
+          <p className="text-red-400 text-sm text-center">{error}</p>
+          <button
+            onClick={() => {
+              reconnectCount.current = 0;
+              reconnectDelay.current = 3000;
+              setError("");
+              connect();
+            }}
+            className="text-xs px-4 py-2 rounded-lg"
+            style={{ background: "#1e3a5f", color: "#60a5fa" }}
+          >
+            ↺ Retry Connection
+          </button>
+        </div>
       )}
 
       {/* Inline summary fallback (shown only if backend save failed) */}
