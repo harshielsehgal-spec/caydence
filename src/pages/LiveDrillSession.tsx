@@ -277,7 +277,7 @@ export default function LiveDrillSession() {
       setError("");
       reconnectDelay.current = 3000;
       reconnectCount.current = 0;
-      // Keepalive ping every 30s to prevent Railway timeout
+      // Keepalive ping every 30s
       if (pingRef.current) clearInterval(pingRef.current);
       pingRef.current = setInterval(() => {
         if (ws.readyState === WebSocket.OPEN) {
@@ -308,7 +308,7 @@ export default function LiveDrillSession() {
       reconnectRef.current = setTimeout(() => {
         if (!unmountedRef.current) {
           reconnectDelay.current = Math.min(reconnectDelay.current * 1.5, 15000);
-          connect();
+          connectRef.current();
         }
       }, reconnectDelay.current);
     };
@@ -430,9 +430,12 @@ export default function LiveDrillSession() {
   };
 
   // ── Mount / unmount ───────────────────────────────────────────────────────
+  const connectRef = useRef<() => void>(() => {});
+  useEffect(() => { connectRef.current = connect; });
+
   useEffect(() => {
     unmountedRef.current = false;
-    connect();
+    connectRef.current();
     return () => {
       unmountedRef.current = true;
       if (intervalRef.current) clearInterval(intervalRef.current);
