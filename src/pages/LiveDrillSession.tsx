@@ -193,6 +193,8 @@ export default function LiveDrillSession() {
   const sessionId   = useRef<string>(uuidv4());
 
   const voice = useVoiceCoach();
+  const voiceRef = useRef(voice);
+  useEffect(() => { voiceRef.current = voice; });
 
   const [connected,     setConnected]     = useState(false);
   const [reconnecting,  setReconnecting]  = useState(false);
@@ -325,7 +327,7 @@ export default function LiveDrillSession() {
           // Fire rep voice feedback
           const score = msg.last_score ?? prevScoreRef.current ?? 70;
           const fault = prevFaultRef.current || "";
-          voice.repFeedback(newReps, Math.round(score), fault, isSync);
+          voiceRef.current.repFeedback(newReps, Math.round(score), fault, isSync);
         } else {
           setRepCount(newReps);
         }
@@ -342,13 +344,13 @@ export default function LiveDrillSession() {
         if (newCue) {
           prevFaultRef.current = newCue;
           const cueL = newCue.toLowerCase();
-          if      (cueL.includes("elbow") && cueL.includes("lower")) voice.sayGate("gate_press");
-          else if (cueL.includes("tuck") || cueL.includes("chicken")) voice.sayGate("gate_wing");
-          else if (cueL.includes("side") || cueL.includes("cross"))   voice.sayGate("gate_cross");
-          else if (cueL.includes("back"))                              voice.sayGate("gate_kickback");
-          else if (cueL.includes("hip"))                               voice.sayGate("gate_hips");
-          else if (cueL.includes("deeper"))                            voice.sayGate("gate_depth");
-          else if (cueL.includes("plank"))                             voice.sayGate("gate_plank");
+          if      (cueL.includes("elbow") && cueL.includes("lower")) voiceRef.current.sayGate("gate_press");
+          else if (cueL.includes("tuck") || cueL.includes("chicken")) voiceRef.current.sayGate("gate_wing");
+          else if (cueL.includes("side") || cueL.includes("cross"))   voiceRef.current.sayGate("gate_cross");
+          else if (cueL.includes("back"))                              voiceRef.current.sayGate("gate_kickback");
+          else if (cueL.includes("hip"))                               voiceRef.current.sayGate("gate_hips");
+          else if (cueL.includes("deeper"))                            voiceRef.current.sayGate("gate_depth");
+          else if (cueL.includes("plank"))                             voiceRef.current.sayGate("gate_plank");
         }
 
         setCue(newCue);
@@ -363,13 +365,13 @@ export default function LiveDrillSession() {
       if (msg.type === "session_summary") {
         if (intervalRef.current) clearInterval(intervalRef.current);
         setActive(false);
-        voice.sessionEnd(msg.total_reps ?? 0, msg.avg_score ?? 0);
+        voiceRef.current.sessionEnd(msg.total_reps ?? 0, msg.avg_score ?? 0);
         saveSummaryAndNavigate(msg);
       }
 
       if (msg.error) setError(msg.error);
     };
-  }, [wsEndpoint, saveSummaryAndNavigate, voice]);
+  }, [wsEndpoint, saveSummaryAndNavigate]); // voice accessed via voiceRef
 
   // ── Start session ─────────────────────────────────────────────────────────
   const startSession = () => {
@@ -385,7 +387,7 @@ export default function LiveDrillSession() {
     reconnectCount.current = 0;
     reconnectDelay.current = 3000;
     setActive(true);
-    voice.sessionStart();
+    voiceRef.current.sessionStart();
 
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
       connect();
@@ -428,7 +430,7 @@ export default function LiveDrillSession() {
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
       wsRef.current?.close();
     };
-  }, [connect]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const borderColor = cueSeverity === "error" ? "#ef4444"
                     : cueSeverity === "warn"   ? "#f59e0b"
