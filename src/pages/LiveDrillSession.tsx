@@ -210,6 +210,7 @@ export default function LiveDrillSession() {
   const reconnectCount  = useRef(0);
   const MAX_RETRIES     = 5;
   const unmountedRef    = useRef(false);
+  const pingRef         = useRef<ReturnType<typeof setInterval> | null>(null);
   const [phase,       setPhase]       = useState("IDLE");
   const [cue,         setCue]         = useState("");
   const [cueSeverity, setCueSeverity] = useState("");
@@ -276,10 +277,18 @@ export default function LiveDrillSession() {
       setError("");
       reconnectDelay.current = 3000;
       reconnectCount.current = 0;
+      // Keepalive ping every 30s to prevent Railway timeout
+      if (pingRef.current) clearInterval(pingRef.current);
+      pingRef.current = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: "ping" }));
+        }
+      }, 30000);
     };
 
     ws.onclose = () => {
       if (unmountedRef.current) return;
+      if (pingRef.current) { clearInterval(pingRef.current); pingRef.current = null; }
       setConnected(false);
       setActive(false);
       if (intervalRef.current) {
@@ -428,6 +437,7 @@ export default function LiveDrillSession() {
       unmountedRef.current = true;
       if (intervalRef.current) clearInterval(intervalRef.current);
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
+      if (pingRef.current) clearInterval(pingRef.current);
       wsRef.current?.close();
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
