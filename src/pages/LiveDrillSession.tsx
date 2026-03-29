@@ -13,11 +13,13 @@ import { ArrowLeft } from "lucide-react";
 import { getDrillDisplayName } from "@/utils/drillReportTemplate";
 
 const WS_URL          = import.meta.env.VITE_BACKEND_WS_URL  || "ws://localhost:8001";
-const API_BASE_URL    = import.meta.env.VITE_BACKEND_API_URL  || "http://localhost:8000/api";
+const API_BASE_URL    = import.meta.env.VITE_BACKEND_API_URL  || "http://localhost:8001/api";
 const FRAME_INTERVAL  = 150; // ms — ~7 fps, balanced speed vs server load
 
-const EL_API_KEY  = import.meta.env.VITE_ELEVENLABS_API_KEY || "";
-const EL_VOICE_ID = "GyIXYY876myKNtA1j8NI"; // Tyler — Energetic Arena Announcer
+// ElevenLabs is proxied through the backend — API key never exposed in browser.
+// Voice ID is set via ELEVENLABS_VOICE_ID env var on the server (defaults to Tyler).
+const EL_API_KEY  = ""; // unused — kept for reference only
+const EL_VOICE_ID = ""; // unused — set on server via ELEVENLABS_VOICE_ID env var
 
 // ── ElevenLabs Voice Coach ────────────────────────────────────────────────────
 // Mirrors VoiceCoach from v8finalvoice.py — same lines, same priority logic.
@@ -56,27 +58,26 @@ function useVoiceCoach() {
   const GATE_CD      = 4000; // ms cooldown for repeated gate cues
 
   const speak = useCallback(async (text: string) => {
-    if (!EL_API_KEY || !text) return;
+    if (!text) return;
     playingRef.current = true;
     try {
-      const res = await fetch(
-        `https://api.elevenlabs.io/v1/text-to-speech/${EL_VOICE_ID}/stream`,
-        {
-          method: "POST",
-          headers: {
-            "xi-api-key":   EL_API_KEY,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            text,
-            model_id: "eleven_turbo_v2",
-            voice_settings: { stability: 0.4, similarity_boost: 0.8, style: 0.5, use_speaker_boost: true },
-          }),
-        }
-      );
-      if (!res.ok) { playingRef.current = false; processQueue(); return; }
-      const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
+      // POST to our own backend — it proxies to ElevenLabs server-side.
+      // This avoids the 401 that happens when browsers call ElevenLabs directly
+      // (origin allowlisting is an enterprise-only ElevenLabs feature).
+      const res = await fetch(`${API_BASE_URL}/tts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (!res.ok) {
+        const errBody = await res.text().catch(() => "");
+        console.error(`[TTS proxy] ${res.status}`, errBody);
+        playingRef.current = false;
+        processQueue();
+        return;
+      }
+      const blob  = await res.blob();
+      const url   = URL.createObjectURL(blob);
       const audio = new Audio(url);
       audio.onended = () => {
         URL.revokeObjectURL(url);
@@ -85,7 +86,8 @@ function useVoiceCoach() {
       };
       audio.onerror = () => { playingRef.current = false; processQueue(); };
       audio.play();
-    } catch {
+    } catch (err) {
+      console.error("[TTS proxy] fetch error:", err);
       playingRef.current = false;
       processQueue();
     }
@@ -277,13 +279,13 @@ export default function LiveDrillSession() {
       setError("");
       reconnectDelay.current = 3000;
       reconnectCount.current = 0;
-      // Keepalive ping every 30s
+      // Keepalive ping every 20s — Railway proxy kills at 60s idle, 20s gives safe margin
       if (pingRef.current) clearInterval(pingRef.current);
       pingRef.current = setInterval(() => {
         if (ws.readyState === WebSocket.OPEN) {
           ws.send(JSON.stringify({ type: "ping" }));
         }
-      }, 30000);
+      }, 20000);
     };
 
     ws.onclose = () => {
@@ -398,20 +400,19 @@ export default function LiveDrillSession() {
     setActive(true);
     voiceRef.current.sessionStart();
 
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      connect();
-      setTimeout(beginStreaming, 1500);
-    } else {
-      wsRef.current.close();
-      connect();
-      setTimeout(beginStreaming, 1500);
-    }
+    // FIXED: Never close and re-open the WS on session start.
+    // connect() already ran on mount and keeps itself alive via auto-reconnect.
+    // beginStreaming() polls readyState every 150ms — it will start sending
+    // frames as soon as the socket is open, no race condition.
+    beginStreaming();
   };
 
   const beginStreaming = () => {
+    // Clear any existing interval first to avoid double-sending
+    if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
       const ws = wsRef.current;
-      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      if (!ws || ws.readyState !== WebSocket.OPEN) return; // silently wait until ready
       const screenshot = webcamRef.current?.getScreenshot({ width: 320, height: 180 });
       if (!screenshot) return;
       ws.send(JSON.stringify({ type: "frame", frame: screenshot.split(",")[1] }));
