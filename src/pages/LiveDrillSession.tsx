@@ -162,6 +162,7 @@ interface RepData {
   depth:      number;
   tempo:      number;
   voided:     boolean;
+  category?:  string;
 }
 
 interface SessionSummary {
@@ -657,6 +658,13 @@ export default function LiveDrillSession() {
                 <span className="font-bold" style={{ color: rep.voided ? "#f87171" : "#6ee7b7" }}>
                   {rep.voided ? "VOIDED" : `${rep.score}/100`}
                 </span>
+                {!rep.voided && (
+                  <span className="text-xs font-bold" style={{
+                    color: rep.category === "Good Rep" ? "#22c55e" : "#f59e0b"
+                  }}>
+                    {rep.category === "Good Rep" ? "✅ Good Rep" : "⚠️ Could Be Improved"}
+                  </span>
+                )}
               </div>
             ))}
           </div>
