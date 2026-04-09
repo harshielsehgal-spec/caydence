@@ -138,8 +138,8 @@ function useVoiceCoach() {
     let scoreKey = score >= 80 ? "score_high" : score >= 60 ? "score_mid" : "score_low";
     if (score === 100) scoreKey = "score_100";
 
-    if (faultKey && score < 80) enqueue(VOICE_LINES[faultKey], 1);
-    else                        enqueue(VOICE_LINES[scoreKey],  1);
+    if (faultKey)  enqueue(VOICE_LINES[faultKey], 1);
+    else           enqueue(VOICE_LINES[scoreKey],  1);
   }, [enqueue]);
 
   const sessionStart = useCallback(() => {
@@ -363,6 +363,10 @@ export default function LiveDrillSession() {
           else if (cueL.includes("hip"))                               voiceRef.current.sayGate("gate_hips");
           else if (cueL.includes("deeper"))                            voiceRef.current.sayGate("gate_depth");
           else if (cueL.includes("plank"))                             voiceRef.current.sayGate("gate_plank");
+          else if (cueL.includes("swing") || cueL.includes("shoulder")) voiceRef.current.sayGate("fault_swing");
+          else if (cueL.includes("fast") || cueL.includes("slow"))    voiceRef.current.sayGate("fault_tempo");
+          else if (cueL.includes("higher") || cueL.includes("squeeze")) voiceRef.current.sayGate("fault_rom");
+          else if (cueL.includes("lower slower"))                      voiceRef.current.sayGate("fault_ecc");
         }
 
         setCue(newCue);
