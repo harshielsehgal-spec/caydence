@@ -209,9 +209,9 @@ export default function LiveDrillSession() {
   const prevScoreRef    = useRef<number | null>(null);
   const prevFaultRef    = useRef<string>("");
   const reconnectRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const reconnectDelay  = useRef(3000);
+  const reconnectDelay  = useRef(6000);  // 6s initial — allows Render cold start
   const reconnectCount  = useRef(0);
-  const MAX_RETRIES     = 5;
+  const MAX_RETRIES     = 8;  // more retries to survive Render cold start
   const unmountedRef    = useRef(false);
   const pingRef         = useRef<ReturnType<typeof setInterval> | null>(null);
   const [phase,       setPhase]       = useState("IDLE");
@@ -270,6 +270,16 @@ export default function LiveDrillSession() {
       reconnectRef.current = null;
     }
 
+    // Guard: close any existing connection before opening a new one
+    // Prevents multiple simultaneous WS connections on Render cold start
+    if (wsRef.current &&
+        (wsRef.current.readyState === WebSocket.CONNECTING ||
+         wsRef.current.readyState === WebSocket.OPEN)) {
+      wsRef.current.onclose = null; // prevent reconnect loop from old socket
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+
     const ws = new WebSocket(`${WS_URL}/ws/${wsEndpoint}/${sessionId.current}`);
     wsRef.current = ws;
 
@@ -278,7 +288,7 @@ export default function LiveDrillSession() {
       setConnected(true);
       setReconnecting(false);
       setError("");
-      reconnectDelay.current = 3000;
+      reconnectDelay.current = 6000;  // reset to initial delay
       reconnectCount.current = 0;
       // Keepalive ping every 20s — Railway proxy kills at 60s idle, 20s gives safe margin
       if (pingRef.current) clearInterval(pingRef.current);
