@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Dumbbell } from "lucide-react";
+import { User, Dumbbell, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AddRoleDialog } from "@/components/AddRoleDialog";
@@ -42,6 +42,8 @@ const Auth = () => {
   const [showAddRoleDialog, setShowAddRoleDialog] = useState(false);
   const [existingUserId, setExistingUserId] = useState<string | null>(null);
   
+  const [showPassword, setShowPassword] = useState(false);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -368,18 +370,30 @@ const Auth = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-white">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value.trim() })}
-                  required
-                  minLength={8}
-                  className="bg-[#0D0D0D] border-[#FF6B00]/30 text-white"
-                />
-                {!isLogin && formData.password && formData.password.length < 8 && (
-                  <p className="text-sm text-red-400">Password must be at least 8 characters</p>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value.trim() })}
+                    required
+                    minLength={8}
+                    className="bg-[#0D0D0D] border-[#FF6B00]/30 text-white pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#D0D0D0]/60 hover:text-[#FF6B00] transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                {!isLogin && formData.password.length > 0 && (
+                  formData.password.length < 8
+                    ? <p className="text-xs text-red-400">At least 8 characters required ({formData.password.length}/8)</p>
+                    : <p className="text-xs text-green-400">✓ Good ({formData.password.length} characters)</p>
                 )}
               </div>
 

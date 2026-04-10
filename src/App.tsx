@@ -39,6 +39,7 @@ import DemoAutoplay from "./pages/DemoAutoplay";
 import DrillCapture from "./pages/DrillCapture";
 import DrillReport from "./pages/DrillReport";
 import LiveDrillSession from "./pages/LiveDrillSession";
+import EarlyAccess from "./pages/EarlyAccess";
 
 const queryClient = new QueryClient();
 
@@ -91,6 +92,9 @@ const App = () => (
           <Route path="/fitness/drills/:drillKey" element={<DrillCapture />} />
           <Route path="/fitness/drills/:drillKey/live" element={<LiveDrillSession />} />
           <Route path="/fitness/drills/:drillKey/report/:reportId" element={<DrillReport />} />
+
+          {/* Early Access / Pricing */}
+          <Route path="/pricing" element={<EarlyAccess />} />
 
           {/* Demo */}
           <Route path="/demo-autoplay" element={<DemoAutoplay />} />
