@@ -38,8 +38,8 @@ const EarlyAccess = () => {
 
     setLoading(true);
     try {
-      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://gzlpypnxsenikuvrylon.supabase.co";
-      const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+      const SUPABASE_URL = "https://gzlpypnxsenikuvrylon.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6bHB5cG54c2VuaWt1dnJ5bG9uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDYyMjMsImV4cCI6MjA3OTU4MjIyM30.-1ineVfphSUuUmM_BaC-xNiVcQWZErVD4ohzSFg4Wf4";
 
       const res = await fetch(`${SUPABASE_URL}/rest/v1/early_access_waitlist`, {
         method: "POST",
