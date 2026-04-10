@@ -7,7 +7,6 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Zap, Brain, BarChart3, Mic, CheckCircle, ArrowLeft } from "lucide-react";
 
@@ -39,23 +38,38 @@ const EarlyAccess = () => {
 
     setLoading(true);
     try {
-      // Use supabase as any to bypass generated type restrictions
-      // early_access_waitlist was created after types were generated
-      const { error } = await (supabase as any)
-        .from("early_access_waitlist")
-        .insert({
+      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://gzlpypnxsenikuvrylon.supabase.co";
+      const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/early_access_waitlist`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+          "Prefer": "return=minimal",
+        },
+        body: JSON.stringify({
           name:  name.trim(),
           email: email.trim().toLowerCase(),
-        });
+        }),
+      });
 
-      if (error) {
-        // Unique constraint = already signed up
-        if (error.code === "23505") {
-          toast.success("You're already on the list! We'll be in touch soon.");
+      if (res.status === 409 || res.status === 23505) {
+        toast.success("You're already on the list! We'll be in touch soon.");
+        setDone(true);
+        return;
+      }
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        // Duplicate email
+        if (errBody?.code === "23505") {
+          toast.success("You're already on the list!");
           setDone(true);
           return;
         }
-        throw error;
+        throw new Error(errBody?.message || "Failed to save");
       }
 
       setDone(true);
